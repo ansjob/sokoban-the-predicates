@@ -1,3 +1,6 @@
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class Coordinate {
 	
@@ -35,7 +38,43 @@ public class Coordinate {
 
 	@Override
 	public String toString() {
-		return "Coordinate [x=" + row + ", y=" + col + "]";
+		return "Coordinate [row=" + row + ", col=" + col + "]";
+	}
+	
+	public Set<Coordinate> getNeighbours() {
+		Set<Coordinate> neighbours = new HashSet<Coordinate>();
+		
+		neighbours.add(new Coordinate(row -1, col));
+		neighbours.add(new Coordinate(row +1, col));
+		neighbours.add(new Coordinate(row, col+1));
+		neighbours.add(new Coordinate(row, col-1));
+		
+		return neighbours;
+		
+	}
+
+	public char getMoveChar(Coordinate from) {
+		Coordinate delta = new Coordinate(row - from.row, col - from.col);
+		
+		if (delta.col == 1) {
+			return 'R';
+		}
+		else if (delta.col == -1) {
+			return 'L';
+		}
+		else if (from.row == 1) {
+			return 'D';
+		}
+		else if (from.row == -1) {
+			return 'U';
+		}
+		else {
+			throw new RuntimeException("Illegal delta vector: " + delta);
+		}
+	}
+	
+	public Coordinate push(Coordinate from) {
+		return new Coordinate(2 * row  - from.row, 2*col - from.col);
 	}
 
 	

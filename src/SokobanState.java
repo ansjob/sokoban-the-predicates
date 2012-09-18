@@ -1,4 +1,6 @@
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 
@@ -11,17 +13,11 @@ public class SokobanState implements Comparable<SokobanState> {
 	public final SokobanState parent;
 	
 	public SokobanState(Set<Coordinate> boxLocations,
-			Set<Coordinate> reachableLocations, Coordinate currentPosition, SokobanState parent) {
+			 Coordinate currentPosition, SokobanState parent) {
 		this.boxLocations = boxLocations;
-		this.reachableLocations = reachableLocations;
 		this.currentPosition = currentPosition;
 		this.parent = parent;
-	}
-
-	@Override
-	public String toString() {
-		return "State [boxLocations=" + boxLocations + ", reachableLocations="
-				+ reachableLocations + "]";
+		this.reachableLocations = getReachablePositions();
 	}
 
 	@Override
@@ -66,35 +62,76 @@ public class SokobanState implements Comparable<SokobanState> {
 
 	public Set<SokobanState> getChildren() {
 		Set<SokobanState> children = new HashSet<SokobanState>();
-		Set<Coordinate> pushFromLocations = new HashSet<Coordinate>();
 		for (Coordinate box : boxLocations) {
-			for (int i = 0; i < 4; ++i) {
-				Coordinate tmp = null;
-				switch(i) {
-				case 0:
-					tmp = new Coordinate(box.row + 1, box.col);
-					break;
-				case 1:
-					tmp = new Coordinate(box.row -1 , box.col);
-					break;
-				case 2:
-					tmp = new Coordinate(box.row, box.col +1);
-					break;
-				case 3:
-					tmp = new Coordinate(box.row, box.col -1);
-					break;
-				}
-				if (reachableLocations.contains(tmp) && isPushableFrom(box, tmp)) {
-					pushFromLocations.add(tmp);
+			for (Coordinate from : box.getNeighbours()) {
+				if (reachableLocations.contains(from) && isPushableFrom(box, from)) {
+					Coordinate playerPosition = box, newBoxPosition = box.push(from);
+					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>(boxLocations);
+					newBoxPositions.remove(box);
+					newBoxPositions.add(newBoxPosition);
+					SokobanState child = new SokobanState(newBoxPositions, playerPosition, this);
+					children.add(child);
 				}
 			}
 		}
-		
 		return children;
 	}
 
 	private boolean isPushableFrom(Coordinate box, Coordinate from) {
-		return SokobanBoard.cells[box.row][row.col];
+		Coordinate target = box.push(from);
+		return SokobanBoard.cells[target.row][target.col] != '#';
+	}
+	
+	
+	
+	private Set<Coordinate> getReachablePositions() {
+		Set<Coordinate> result = new HashSet<Coordinate>();
+		Queue<Coordinate> q = new LinkedList<Coordinate>();
+		q.add(currentPosition);
+		result.add(currentPosition);
+		while (!q.isEmpty()){
+			Coordinate cur = q.remove();
+			for (Coordinate neighbour : cur.getNeighbours()) {
+				if (SokobanBoard.cells[neighbour.row][neighbour.col] != '#' 
+						&& !boxLocations.contains(neighbour)
+						&& !result.contains(neighbour))
+				{
+					result.add(neighbour);
+					q.add(neighbour);
+				}
+			}
+		}
+		return result;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int row = 0; row < SokobanBoard.cells.length; row++) {
+			for (int col = 0; col < SokobanBoard.cells[0].length; ++col) {
+				char c = SokobanBoard.cells[row][col];
+				Coordinate currentPos = new Coordinate(row, col);
+				if (boxLocations.contains(currentPos)) {
+					if (c == '.') {
+						c = '*';
+					}
+					else {
+						c = '$';
+					}
+				}
+				if (currentPos.equals(this.currentPosition)) {
+					if (c == '.') {
+						c = '+';
+					}
+					else {
+						c = '@';
+					}
+				}
+				sb.append(c);
+			}
+			sb.append('\n');
+		}
+		
+		return sb.toString();
 	}
 	
 	

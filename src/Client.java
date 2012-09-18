@@ -32,15 +32,20 @@ public class Client {
             List<String> rows = new ArrayList<String>(lNumRows);
             
             //read each row
+            
+            Utils.DEBUG("Recieved board: \n");
             for(int i=0;i<lNumRows;i++)
             {
                 lLine=lIn.readLine();
                 rows.add(lLine);
+                Utils.DEBUG("%s\n", lLine);
             }
             
             SokobanSolver solver = new SokobanSolver(new SokobanBoard(rows));
             
             String solution = solver.getSolution();
+            
+            Utils.DEBUG("Our solution: %s\n", solution);
 
             //send the solution to the server
             lOut.println(solution);
