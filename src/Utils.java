@@ -1,10 +1,10 @@
 
 public class Utils {
 	
-	public static final boolean DEBUGING = false; 
+	public static final int DEBUG_LEVEL = 2; 
 	
-	public static void DEBUG(String format, Object... params) {
-		if (DEBUGING) {
+	public static void DEBUG(int level, String format, Object... params) {
+		if (level <= DEBUG_LEVEL) {
 			System.out.printf(format, params);
 		}
 	}

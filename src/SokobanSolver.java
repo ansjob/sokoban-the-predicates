@@ -16,7 +16,7 @@ public class SokobanSolver {
 
 	public String getSolution() {
 		
-		Utils.DEBUG("Trying to find a solution to this board:\n%s \n\n", board.startingState);
+		Utils.DEBUG(2, "Trying to find a solution to this board:\n%s \n\n", board.startingState);
 		
 		PriorityQueue<SokobanState> q = new PriorityQueue<SokobanState>();
 		Set<SokobanState> queuedStates = new HashSet<SokobanState>();
@@ -34,7 +34,7 @@ public class SokobanSolver {
 				if (!queuedStates.contains(child)) {
 					queuedStates.add(child);
 					q.add(child);
-					Utils.DEBUG("Köar:\n%s\n\n", child);
+					Utils.DEBUG(3, "Köar:\n%s\n\n", child);
 				}
 			}
 		}
