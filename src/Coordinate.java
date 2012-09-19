@@ -77,6 +77,11 @@ public class Coordinate {
 		return new Coordinate(2 * row  - from.row, 2*col - from.col);
 	}
 
+	public boolean canBePulledFrom(Coordinate neighbour) {
+		Coordinate target = neighbour.push(this);
+		return SokobanBoard.cells[target.row][target.col] != '#'; 
+	}
+
 	
 	
 }

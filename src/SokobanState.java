@@ -79,7 +79,7 @@ public class SokobanState implements Comparable<SokobanState> {
 
 	private boolean isPushableFrom(Coordinate box, Coordinate from) {
 		Coordinate target = box.push(from);
-		return SokobanBoard.cells[target.row][target.col] != '#';
+		return SokobanBoard.cells[target.row][target.col] != '#' && !SokobanBoard.staticDead[target.row][target.col];
 	}
 	
 	
@@ -125,6 +125,9 @@ public class SokobanState implements Comparable<SokobanState> {
 					else {
 						c = '@';
 					}
+				}
+				if (SokobanBoard.staticDead[row][col]){
+					c = ',';
 				}
 				sb.append(c);
 			}
