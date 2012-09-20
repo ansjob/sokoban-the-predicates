@@ -42,8 +42,7 @@ public class Coordinate {
 	}
 	
 	public Set<Coordinate> getNeighbours() {
-		Set<Coordinate> neighbours = new HashSet<Coordinate>();
-		
+		Set<Coordinate> neighbours = new HashSet<Coordinate>(10);
 		neighbours.add(new Coordinate(row -1, col));
 		neighbours.add(new Coordinate(row +1, col));
 		neighbours.add(new Coordinate(row, col+1));
@@ -54,23 +53,28 @@ public class Coordinate {
 	}
 
 	public char getMoveChar(Coordinate from) {
+		return getMoveChar(from, false);
+	}
+	
+	public char getMoveChar(Coordinate from, boolean push) {
 		Coordinate delta = new Coordinate(row - from.row, col - from.col);
-		
+		char c;
 		if (delta.col == 1) {
-			return 'R';
+			c = 'R';
 		}
 		else if (delta.col == -1) {
-			return 'L';
+			c = 'L';
 		}
-		else if (from.row == 1) {
-			return 'D';
+		else if (delta.row == 1) {
+			c = 'D';
 		}
-		else if (from.row == -1) {
-			return 'U';
+		else if (delta.row == -1) {
+			c = 'U';
 		}
 		else {
 			throw new RuntimeException("Illegal delta vector: " + delta);
 		}
+		return (push ? c : Character.toLowerCase(c));
 	}
 	
 	public Coordinate push(Coordinate from) {

@@ -8,14 +8,15 @@ public class SokobanState implements Comparable<SokobanState> {
 	
 	public final Set<Coordinate> boxLocations;
 	public final Set<Coordinate> reachableLocations;
-	public final Coordinate currentPosition;
+	public final Coordinate currentPosition, pushFromPosition;
 	public final int priority = 1;
 	public final SokobanState parent;
 	
 	public SokobanState(Set<Coordinate> boxLocations,
-			 Coordinate currentPosition, SokobanState parent) {
+			 Coordinate currentPosition, Coordinate pushFromPosition, SokobanState parent) {
 		this.boxLocations = boxLocations;
 		this.currentPosition = currentPosition;
+		this.pushFromPosition = pushFromPosition;
 		this.parent = parent;
 		this.reachableLocations = getReachablePositions();
 	}
@@ -66,19 +67,23 @@ public class SokobanState implements Comparable<SokobanState> {
 			for (Coordinate from : box.getNeighbours()) {
 				if (reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) {
 					Coordinate playerPosition = box, newBoxPosition = box.push(from);
-					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>(boxLocations);
+					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>();
+					newBoxPositions.addAll(boxLocations);
 					newBoxPositions.remove(box);
 					newBoxPositions.add(newBoxPosition);
-					SokobanState child = new SokobanState(newBoxPositions, playerPosition, this);
-					children.add(child);
+					SokobanState child = new SokobanState(newBoxPositions, playerPosition, from, this);
+					if (!child.isDead())
+						children.add(child);
 				}
 			}
 		}
 		return children;
+	}	
+	
+	private boolean isDead() {
+		return false;
 	}
-	
-	
-	
+
 	private Set<Coordinate> getReachablePositions() {
 		Set<Coordinate> result = new HashSet<Coordinate>();
 		Queue<Coordinate> q = new LinkedList<Coordinate>();

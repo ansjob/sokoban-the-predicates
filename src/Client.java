@@ -33,7 +33,7 @@ public class Client {
             
             //read each row
             
-            Utils.DEBUG(1, "Recieved board: \n");
+            Utils.DEBUG(1, "Recieved board: (#%s)\n", pArgs[2]);
             for(int i=0;i<lNumRows;i++)
             {
                 lLine=lIn.readLine();
@@ -41,11 +41,12 @@ public class Client {
                 Utils.DEBUG(1, "%s\n", lLine);
             }
             
-            SokobanSolver solver = new SokobanSolver(new SokobanBoard(rows));
+            long startTime = System.currentTimeMillis();
             
+            SokobanSolver solver = new SokobanSolver(new SokobanBoard(rows));        
             String solution = solver.getSolution();
-            
-            Utils.DEBUG(1, "Our solution: %s\n", solution);
+            long timeElapsed = System.currentTimeMillis() - startTime;
+            Utils.DEBUG(1, "Our solution: %s \n(took %d ms)\n", solution, timeElapsed);
 
             //send the solution to the server
             lOut.println(solution);

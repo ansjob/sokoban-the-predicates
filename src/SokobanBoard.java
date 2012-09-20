@@ -69,6 +69,7 @@ public class SokobanBoard {
 				staticDead[i][j] = true;
 			}
 		}
+		
 		for (Coordinate goal : goalPositions){
 			Set<Coordinate> visited = new HashSet<Coordinate>();
 			Queue<Coordinate> q = new LinkedList<Coordinate>();
@@ -78,14 +79,13 @@ public class SokobanBoard {
 			while (!q.isEmpty()){
 				Coordinate cur = q.remove();
 				for(Coordinate neighbour : cur.getNeighbours()){
-					if (cells[neighbour.row][neighbour.col] != '#') {
-						if (cur.canBePulledFrom(neighbour)){
-							staticDead[neighbour.row][neighbour.row] = false;
-						}
-						if (!visited.contains(neighbour)) {
-							visited.add(neighbour);
-							q.add(neighbour);
-						}
+					if (!visited.contains(neighbour)  
+							&& cells[neighbour.row][neighbour.col] != '#' 
+							&& cur.canBePulledFrom(neighbour))
+					{
+						staticDead[neighbour.row][neighbour.col] = false;
+						visited.add(neighbour);
+						q.add(neighbour);
 					}
 				}
 			}
@@ -120,7 +120,7 @@ public class SokobanBoard {
 //				}
 //			}
 //		}
-		startingState = new SokobanState(boxPositions, startingPosition, null);
+		startingState = new SokobanState(boxPositions, startingPosition, null, null);
 
 	}
 
