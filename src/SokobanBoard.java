@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class SokobanBoard {
 	
-	
+	public static Set<Coordinate> goalPositions;
 	public static boolean[][] staticDead;
 	public static char[][] cells;
 	
@@ -62,7 +62,7 @@ public class SokobanBoard {
 			}
 			rowNum++;
 		}
-		
+		SokobanBoard.goalPositions = goalPositions;
 		
 		for (int i = 0; i < staticDead.length;i++){
 			for(int j = 0; j < staticDead[0].length; j++){

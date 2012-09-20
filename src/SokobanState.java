@@ -9,7 +9,7 @@ public class SokobanState implements Comparable<SokobanState> {
 	public final Set<Coordinate> boxLocations;
 	public final Set<Coordinate> reachableLocations;
 	public final Coordinate currentPosition, pushFromPosition;
-	public final int priority = 1;
+	public final int priority;
 	public final SokobanState parent;
 	
 	public SokobanState(Set<Coordinate> boxLocations,
@@ -19,6 +19,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		this.pushFromPosition = pushFromPosition;
 		this.parent = parent;
 		this.reachableLocations = getReachablePositions();
+		this.priority = evaluate();
 	}
 
 	@Override
@@ -79,7 +80,16 @@ public class SokobanState implements Comparable<SokobanState> {
 		}
 		return children;
 	}	
-	
+
+	private int evaluate() {
+		int val = 0;
+		for (Coordinate goal : SokobanBoard.goalPositions) {
+			if (boxLocations.contains(goal))
+				val++;
+		}
+		return val;
+	}
+
 	private boolean isDead() {
 		return false;
 	}
