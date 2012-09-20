@@ -92,6 +92,7 @@ public class SokobanSolver {
 			for (Coordinate neighbour : currentPos.getNeighbours()) {
 				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
 					reverseSolution.append(neighbour.getMoveChar(currentPos));
+					currentPos = neighbour;
 				}
 			}
 		}
