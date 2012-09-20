@@ -78,14 +78,17 @@ public class SokobanBoard {
 			while (!q.isEmpty()){
 				Coordinate cur = q.remove();
 				for(Coordinate neighbour : cur.getNeighbours()){
-					if (!visited.contains(neighbour)  && cells[neighbour.row][neighbour.col] != '#' && cur.canBePulledFrom(neighbour)){
-						staticDead[neighbour.row][neighbour.row] = false;
-						visited.add(neighbour);
-						q.add(neighbour);
+					if (cells[neighbour.row][neighbour.col] != '#') {
+						if (cur.canBePulledFrom(neighbour)){
+							staticDead[neighbour.row][neighbour.row] = false;
+						}
+						if (!visited.contains(neighbour)) {
+							visited.add(neighbour);
+							q.add(neighbour);
+						}
 					}
 				}
 			}
-			break;
 		}
 		
 		

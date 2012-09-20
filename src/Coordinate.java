@@ -81,7 +81,10 @@ public class Coordinate {
 		Coordinate target = neighbour.push(this);
 		return SokobanBoard.cells[target.row][target.col] != '#'; 
 	}
-
 	
-	
+	public boolean isPushableFrom(Coordinate from, Set<Coordinate> curBoxPositions) {
+		Coordinate target = this.push(from);
+		if (curBoxPositions.contains(target)) return false;
+		return SokobanBoard.cells[target.row][target.col] != '#' && !SokobanBoard.staticDead[target.row][target.col];
+	}
 }

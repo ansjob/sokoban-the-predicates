@@ -64,7 +64,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		Set<SokobanState> children = new HashSet<SokobanState>();
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
-				if (reachableLocations.contains(from) && isPushableFrom(box, from)) {
+				if (reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) {
 					Coordinate playerPosition = box, newBoxPosition = box.push(from);
 					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>(boxLocations);
 					newBoxPositions.remove(box);
@@ -75,11 +75,6 @@ public class SokobanState implements Comparable<SokobanState> {
 			}
 		}
 		return children;
-	}
-
-	private boolean isPushableFrom(Coordinate box, Coordinate from) {
-		Coordinate target = box.push(from);
-		return SokobanBoard.cells[target.row][target.col] != '#' && !SokobanBoard.staticDead[target.row][target.col];
 	}
 	
 	
@@ -126,7 +121,7 @@ public class SokobanState implements Comparable<SokobanState> {
 						c = '@';
 					}
 				}
-				if (SokobanBoard.staticDead[row][col]){
+				if (c != '#' && SokobanBoard.staticDead[row][col]){
 					c = ',';
 				}
 				sb.append(c);
