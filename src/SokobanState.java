@@ -6,6 +6,7 @@ import java.util.Set;
 
 public class SokobanState implements Comparable<SokobanState> {
 	
+	
 	public final Set<Coordinate> boxLocations;
 	public final Set<Coordinate> reachableLocations;
 	public final Coordinate currentPosition, pushFromPosition;
@@ -87,11 +88,45 @@ public class SokobanState implements Comparable<SokobanState> {
 			if (boxLocations.contains(goal))
 				val++;
 		}
+
 		return val;
 	}
 
 	private boolean isDead() {
 		return false;
+//		for (Coordinate box : boxLocations){
+//			boolean up = boxLocations.contains(box.up());
+//			boolean down = boxLocations.contains(box.down());
+//			boolean left;
+//			boolean right;
+//			if (!up && ! down){
+//				continue;
+//			}
+//				
+//			
+//			left = boxLocations.contains(box.left());
+//			right = boxLocations.contains(box.right());
+//			if(!left && !right){
+//				continue;
+//			}
+//			
+//			if(left){
+//				if(up && boxLocations.contains(box.up().left())){
+//					return true;
+//				} 
+//				if (down && boxLocations.contains(box.down().left())){
+//					return true;
+//				}
+//					
+//			}
+//			if(right){
+//				if (up && boxLocations.contains(box.up().right())){
+//					return true;
+//				}
+//				if (down && boxLocations.contains(box.down().right()));
+//			}
+//		}
+//		return false;
 	}
 
 	private Set<Coordinate> getReachablePositions() {
@@ -119,7 +154,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		for (int row = 0; row < SokobanBoard.cells.length; row++) {
 			for (int col = 0; col < SokobanBoard.cells[0].length; ++col) {
 				char c = SokobanBoard.cells[row][col];
-				Coordinate currentPos = new Coordinate(row, col);
+				Coordinate currentPos = Coordinate.get(row, col);
 				if (boxLocations.contains(currentPos)) {
 					if (c == '.') {
 						c = '*';

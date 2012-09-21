@@ -4,7 +4,10 @@ import java.util.Set;
 
 public class Coordinate {
 	
+	public static Coordinate[][] coordinates; 
+	
 	public final int row,col;
+	
 
 	public Coordinate(int row, int col) {
 		this.row = row;
@@ -43,10 +46,10 @@ public class Coordinate {
 	
 	public Set<Coordinate> getNeighbours() {
 		Set<Coordinate> neighbours = new HashSet<Coordinate>(10);
-		neighbours.add(new Coordinate(row -1, col));
-		neighbours.add(new Coordinate(row +1, col));
-		neighbours.add(new Coordinate(row, col+1));
-		neighbours.add(new Coordinate(row, col-1));
+		neighbours.add(left());
+		neighbours.add(right());
+		neighbours.add(down());
+		neighbours.add(up());
 		
 		return neighbours;
 		
@@ -57,28 +60,29 @@ public class Coordinate {
 	}
 	
 	public char getMoveChar(Coordinate from, boolean push) {
-		Coordinate delta = new Coordinate(row - from.row, col - from.col);
+		int colDelta = col - from.col;
+		int rowDelta = row - from.row;
 		char c;
-		if (delta.col == 1) {
+		if (colDelta == 1) {
 			c = 'R';
 		}
-		else if (delta.col == -1) {
+		else if (colDelta == -1) {
 			c = 'L';
 		}
-		else if (delta.row == 1) {
+		else if (rowDelta == 1) {
 			c = 'D';
 		}
-		else if (delta.row == -1) {
+		else if (rowDelta == -1) {
 			c = 'U';
 		}
 		else {
-			throw new RuntimeException("Illegal delta vector: " + delta);
+			throw new RuntimeException("Illegal delta vector: (" + rowDelta + "," + colDelta + ")");
 		}
 		return (push ? c : Character.toLowerCase(c));
 	}
 	
 	public Coordinate push(Coordinate from) {
-		return new Coordinate(2 * row  - from.row, 2*col - from.col);
+		return get(2 * row  - from.row, 2*col - from.col);
 	}
 
 	public boolean canBePulledFrom(Coordinate neighbour) {
@@ -90,5 +94,22 @@ public class Coordinate {
 		Coordinate target = this.push(from);
 		if (curBoxPositions.contains(target)) return false;
 		return SokobanBoard.cells[target.row][target.col] != '#' && !SokobanBoard.staticDead[target.row][target.col];
+	}
+	
+	public static Coordinate get(int row, int col){
+		return coordinates[row][col];
+	}
+	
+	public Coordinate left(){
+		return coordinates[this.row][this.col-1];
+	}
+	public Coordinate down(){
+		return coordinates[this.row+1][this.col];
+	}
+	public Coordinate right(){
+		return coordinates[this.row][this.col+1];
+	}
+	public Coordinate up(){
+		return coordinates[this.row-1][this.col];
 	}
 }
