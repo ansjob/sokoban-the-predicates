@@ -47,6 +47,7 @@ public class SokobanSolver {
 			for (SokobanState child : children) {	
 				if (reverse){
 					if (forwardQueuedStates.containsKey(child)){ // VINST	
+						System.out.println("VUNNIT");
 						return buildReverseForwardSolution(forwardQueuedStates.get(child), child);
 					}
 					
@@ -56,6 +57,7 @@ public class SokobanSolver {
 					}
 				} else {
 					if (reverseQueuedStates.containsKey(child)){ // VINST
+						System.out.println("VUNNIT");
 						return buildReverseForwardSolution(child, reverseQueuedStates.get(child));
 					}
 					
@@ -74,10 +76,6 @@ public class SokobanSolver {
 		return "NO SOLUTION FOUND";
 	}
 
-	private String buildReverseForwardSolution(SokobanState forward, SokobanState backward) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public String getSolution() {
 		
@@ -116,12 +114,112 @@ public class SokobanSolver {
 		return true;
 	}
 	
+	private String buildReverseForwardSolution(SokobanState forwardState, SokobanState backwardState) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(buildSolution(forwardState));
+		
+		int distance[][] = new int[SokobanBoard.cells.length][SokobanBoard.cells[0].length];
+		for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < distance[0].length; j++)
+				distance[i][j] = -1;
+		}
+		
+		Queue<Coordinate> q = new LinkedList<Coordinate>();
+		Set<Coordinate> queued = new HashSet<Coordinate>();
+		q.add(forwardState.currentPosition);
+		queued.add(forwardState.currentPosition);
+		distance[forwardState.currentPosition.row][forwardState.currentPosition.col] = 0;
+		
+		while (!q.isEmpty()) {
+			Coordinate curPos = q.remove();
+			for (Coordinate neighbour : curPos.getNeighbours()) {
+				if (!queued.contains(neighbour) && !forwardState.boxLocations.contains(neighbour) && SokobanBoard.cells[neighbour.row][neighbour.col] != '#') {
+					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
+					q.add(neighbour);
+					queued.add(neighbour);
+					if (neighbour.equals(backwardState.currentPosition)) {
+						/* Goal reached. */
+						q.clear();
+						break;
+					}
+				}
+			}
+		}
+		
+		StringBuilder reverseSolution = new StringBuilder();
+		Coordinate currentPos = backwardState.currentPosition;
+		while (distance[currentPos.row][currentPos.col] > 0) {
+			for (Coordinate neighbour : currentPos.getNeighbours()) {
+				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
+					reverseSolution.append(currentPos.getMoveChar(neighbour));
+					currentPos = neighbour;
+					break;
+				}
+			}
+		}
+		sb.append(reverseSolution.reverse().toString());
+		
+		sb.append(buildReverseSolution(backwardState));
+		return sb.toString();
+	}
+	
 	private String buildReverseSolution(SokobanState startingState){
 		StringBuilder sb = new StringBuilder();
-		
-		
+		SokobanState currentState = startingState;
+		while(currentState.parent != null){
+			sb.append(getTransitionReverse(currentState, currentState.parent));
+			currentState = currentState.parent;
+		}
 		return sb.toString();
 		
+	}
+	
+	private String getTransitionReverse(SokobanState from, SokobanState to){
+		
+		int distance[][] = new int[SokobanBoard.cells.length][SokobanBoard.cells[0].length];
+		for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < distance[0].length; j++)
+				distance[i][j] = -1;
+		}
+		Queue<Coordinate> q = new LinkedList<Coordinate>();
+		Set<Coordinate> queued = new HashSet<Coordinate>();
+		q.add(from.pushOrPullFromPosition);
+		queued.add(from.pushOrPullFromPosition);
+		distance[from.pushOrPullFromPosition.row][from.pushOrPullFromPosition.col] = 0;
+		
+		while (!q.isEmpty()) {
+			Coordinate curPos = q.remove();
+			for (Coordinate neighbour : curPos.getNeighbours()) {
+				if (!queued.contains(neighbour) && !to.boxLocations.contains(neighbour) && SokobanBoard.cells[neighbour.row][neighbour.col] != '#') {
+					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
+					q.add(neighbour);
+					queued.add(neighbour);
+					if (neighbour.equals(to.currentPosition)) {
+						/* Goal reached. */
+						q.clear();
+						break;
+					}
+				}
+			}
+		}
+		
+		StringBuilder reverseSol = new StringBuilder();
+		
+		Coordinate currentPos = null;
+		currentPos = to.currentPosition;
+		
+		while (distance[currentPos.row][currentPos.col] > 0) {
+			for (Coordinate neighbour : currentPos.getNeighbours()) {
+				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
+					reverseSol.append(currentPos.getMoveChar(neighbour));
+					currentPos = neighbour;
+					break;
+				}
+			}
+		}
+		reverseSol.append(from.pushOrPullFromPosition.getMoveChar(from.currentPosition));
+				
+		return reverseSol.reverse().toString();
 	}
 
 	private String buildSolution(SokobanState finalState) {

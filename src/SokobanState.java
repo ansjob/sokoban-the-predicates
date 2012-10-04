@@ -14,6 +14,7 @@ public class SokobanState implements Comparable<SokobanState> {
 	public final int priority;
 	public final SokobanState parent;
 	public final boolean isReverse;
+	private final int hashCode;
 	
 	
 	public SokobanState(Set<Coordinate> boxLocations,
@@ -25,10 +26,11 @@ public class SokobanState implements Comparable<SokobanState> {
 		this.parent = parent;
 		this.reachableLocations = getReachablePositions();
 		this.priority = evaluate();
+		this.hashCode = computeHashCode();
 	}
 
-	@Override
-	public int hashCode() {
+	
+	public int computeHashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
@@ -39,6 +41,11 @@ public class SokobanState implements Comparable<SokobanState> {
 						.hashCode());
 		return result;
 	}
+	
+	@Override
+	public int hashCode() {
+		return hashCode;
+	};
 
 	@Override
 	public boolean equals(Object obj) {
@@ -203,9 +210,9 @@ public class SokobanState implements Comparable<SokobanState> {
 						c = '@';
 					}
 				}
-				if (c != '#' && SokobanBoard.staticDead[row][col]){
-					c = ',';
-				}
+//				if (c != '#' && SokobanBoard.staticDead[row][col]){
+//					c = ',';
+//				}
 				sb.append(c);
 			}
 			sb.append('\n');

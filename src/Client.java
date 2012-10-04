@@ -44,7 +44,7 @@ public class Client {
             long startTime = System.currentTimeMillis();
             
             SokobanSolver solver = new SokobanSolver(new SokobanBoard(rows));        
-            String solution = solver.getSolution();
+            String solution = solver.getForwardReverseSolution();
             long timeElapsed = System.currentTimeMillis() - startTime;
             Utils.DEBUG(1, "Our solution: %s \n(took %d ms)\n", solution, timeElapsed);
 
