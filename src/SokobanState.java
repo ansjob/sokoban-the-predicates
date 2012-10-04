@@ -92,6 +92,7 @@ public class SokobanState implements Comparable<SokobanState> {
 			if (boxLocations.contains(goal))
 				val += 5;
 		}
+
 		val += 1*distanceValue();
 
 		if(isReverse){
