@@ -6,6 +6,9 @@ import java.util.Set;
 
 public class SokobanState implements Comparable<SokobanState> {
 
+	private static final int REACHED_GOALS_WEIGHT = 50;
+	private static final int DISTANCE_WEIGHT = 10;
+	private static final int MOBILITY_WEIGHT = 20;
 	public final Set<Coordinate> boxLocations;
 //	public final Set<Coordinate> reachableLocations;
 	public final Set<Coordinate> pushOrPullFromPositions;
@@ -110,18 +113,22 @@ public class SokobanState implements Comparable<SokobanState> {
 
 	private int evaluate() {
 		int val = 0;
-		for (Coordinate goal : (isReverse ? SokobanBoard.startBoxPositions
-				: SokobanBoard.goalPositions)) {
-			if (boxLocations.contains(goal))
-				val += 5;
-		}
+		val += REACHED_GOALS_WEIGHT * goalsReached();
 
-		val += distanceValue();
+		val += DISTANCE_WEIGHT * distanceValue();
 
 		if (isReverse) {
 			return val;
 		}
 
+		val += MOBILITY_WEIGHT * mobilityValue();
+
+		return val;
+	}
+
+	private int mobilityValue() {
+		int val = 0;
+		int highestPossible = boxLocations.size() * 4;
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
 				if (pushOrPullFromPositions.contains(from)
@@ -130,8 +137,17 @@ public class SokobanState implements Comparable<SokobanState> {
 				}
 			}
 		}
+		return (int) (100 * (float) val / (float) highestPossible);
+	}
 
-		return val;
+	private int goalsReached() {
+		int doneBoxes = 0;
+		for (Coordinate goal : (isReverse ? SokobanBoard.startBoxPositions
+				: SokobanBoard.goalPositions)) {
+			if (boxLocations.contains(goal))
+				doneBoxes ++;
+		}
+		return (int) (100 * ((float) doneBoxes / (float) SokobanBoard.startBoxPositions.size()));
 	}
 
 	private int distanceValue() {
