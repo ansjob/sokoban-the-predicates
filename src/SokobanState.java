@@ -88,6 +88,7 @@ public class SokobanState implements Comparable<SokobanState> {
 			if (boxLocations.contains(goal))
 				val += 5;
 		}
+		
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
 				if (reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) {
