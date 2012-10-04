@@ -7,9 +7,10 @@ public class TestRunner {
 			
 			thread.run();
 			thread.join(60000);
+			Utils.DEBUG(0, "After join");
 			if (thread.isAlive()) {
 				Utils.DEBUG(0, "Timed out");
-				thread.interrupt();
+				thread.destroy();
 			}
 		}
 	}

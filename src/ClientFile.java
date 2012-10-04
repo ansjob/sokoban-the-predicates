@@ -1,7 +1,5 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +36,7 @@ public class ClientFile {
                 rows.add(lLine);
                 Utils.DEBUG(1, "%s\n", lLine);
             }
+            lIn.close();
             
             SokobanSolver solver = new SokobanSolver(new SokobanBoard(rows));
             
