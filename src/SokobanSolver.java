@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -12,6 +13,70 @@ public class SokobanSolver {
 	
 	public SokobanSolver(SokobanBoard sokobanBoard) {
 		board = sokobanBoard;
+	}
+	
+	public String getForwardReverseSolution(){
+		
+		PriorityQueue<SokobanState> forwardQ = new PriorityQueue<SokobanState>();
+		HashMap<SokobanState, SokobanState> forwardQueuedStates = new HashMap<SokobanState, SokobanState>();
+		
+		
+		
+		PriorityQueue<SokobanState> reverseQ = new PriorityQueue<SokobanState>();
+		HashMap<SokobanState, SokobanState> reverseQueuedStates = new HashMap<SokobanState, SokobanState>();
+		
+		
+		forwardQ.add(board.startingState);
+		forwardQueuedStates.put(board.startingState, board.startingState);
+		
+		Set<SokobanState> reveseStart = board.getReverseStartingStates();
+		reverseQ.addAll(reveseStart);
+		for (SokobanState state : reveseStart){
+			reverseQueuedStates.put(state, state);
+		}
+		
+		
+		boolean reverse = false;
+		
+		
+		while(!forwardQ.isEmpty() || !reverseQ.isEmpty()){
+			
+			SokobanState currentState = (reverse ? reverseQ.remove(): forwardQ.remove());
+			
+			Set<SokobanState> children = currentState.getChildren();
+			for (SokobanState child : children) {	
+				if (reverse){
+					if (forwardQueuedStates.containsKey(child)){ // VINST	
+						return buildReverseForwardSolution(forwardQueuedStates.get(child), child);
+					}
+					
+					if (!reverseQueuedStates.containsKey(child)) {
+						reverseQ.add(child);
+						reverseQueuedStates.put(child, child);
+					}
+				} else {
+					if (reverseQueuedStates.containsKey(child)){ // VINST
+						return buildReverseForwardSolution(child, reverseQueuedStates.get(child));
+					}
+					
+					if (!forwardQueuedStates.containsKey(child)){
+						forwardQ.add(child);
+						forwardQueuedStates.put(child, child);
+					}
+				}
+			}
+			reverse = !reverse;
+		}
+
+		
+		
+		
+		return "NO SOLUTION FOUND";
+	}
+
+	private String buildReverseForwardSolution(SokobanState forward, SokobanState backward) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public String getSolution() {
@@ -44,11 +109,19 @@ public class SokobanSolver {
 
 	private boolean isWinningState(SokobanState state) {
 		for (Coordinate box : state.boxLocations) {
-			if (SokobanBoard.cells[box.row][box.col] != '.') {
+			if (!SokobanBoard.goalPositions.contains(box)) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	private String buildReverseSolution(SokobanState startingState){
+		StringBuilder sb = new StringBuilder();
+		
+		
+		return sb.toString();
+		
 	}
 
 	private String buildSolution(SokobanState finalState) {
@@ -85,7 +158,7 @@ public class SokobanSolver {
 					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
 					q.add(neighbour);
 					queued.add(neighbour);
-					if (neighbour.equals(to.pushFromPosition)) {
+					if (neighbour.equals(to.pushOrPullFromPosition)) {
 						/* Goal reached. */
 						q.clear();
 						break;
@@ -95,8 +168,8 @@ public class SokobanSolver {
 		}
 		
 		StringBuilder reverseSolution = new StringBuilder();
-		Coordinate currentPos = to.pushFromPosition;
-		reverseSolution.append(to.currentPosition.getMoveChar(to.pushFromPosition, true));
+		Coordinate currentPos = to.pushOrPullFromPosition;
+		reverseSolution.append(to.currentPosition.getMoveChar(to.pushOrPullFromPosition, true));
 		while (distance[currentPos.row][currentPos.col] > 0) {
 			for (Coordinate neighbour : currentPos.getNeighbours()) {
 				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {

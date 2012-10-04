@@ -1,3 +1,4 @@
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 public class SokobanBoard {
 	
 	public static Set<Coordinate> goalPositions;
+	public static Set<Coordinate> startBoxPositions;
 	public static boolean[][] staticDead;
 	public static char[][] cells;
 	
@@ -73,6 +75,7 @@ public class SokobanBoard {
 			rowNum++;
 		}
 		SokobanBoard.goalPositions = goalPositions;
+		SokobanBoard.startBoxPositions = boxPositions;
 		
 
 		
@@ -88,7 +91,7 @@ public class SokobanBoard {
 				for(Coordinate neighbour : cur.getNeighbours()){
 					if (!visited.contains(neighbour)  
 							&& cells[neighbour.row][neighbour.col] != '#' 
-							&& cur.canBePulledFrom(neighbour))
+							&& cur.canBePulledFromNoBoxes(neighbour))
 					{
 						staticDead[neighbour.row][neighbour.col] = false;
 						visited.add(neighbour);
@@ -97,8 +100,29 @@ public class SokobanBoard {
 				}
 			}
 		}
-		startingState = new SokobanState(boxPositions, startingPosition, null, null);
+		
+		
+		startingState = new SokobanState(boxPositions, startingPosition, null, null, false);
 
+	}
+
+
+
+	public Set<SokobanState> getReverseStartingStates() {
+		Set<SokobanState> rs = new HashSet<SokobanState>();
+		Set<Coordinate> neighbours = null;
+		
+		
+		for (Coordinate box : goalPositions){
+			neighbours = box.getNeighbours();
+			for (Coordinate neigh: neighbours){
+				if (cells[neigh.row][neigh.col] == '#' || !box.canBePulledFrom(neigh, goalPositions) ) continue;
+				SokobanState state = new SokobanState(goalPositions, neigh, null, null, true);
+				rs.add(state);
+			}
+		}
+		
+		return rs;
 	}
 
 }

@@ -84,9 +84,19 @@ public class Coordinate {
 	public Coordinate push(Coordinate from) {
 		return get(2 * row  - from.row, 2*col - from.col);
 	}
+	
+	public Coordinate pull(Coordinate from){
+		return from.push(this);
+	}
 
-	public boolean canBePulledFrom(Coordinate neighbour) {
+	public boolean canBePulledFromNoBoxes(Coordinate neighbour) {
 		Coordinate target = neighbour.push(this);
+		return SokobanBoard.cells[target.row][target.col] != '#'; 
+	}
+	
+	public boolean canBePulledFrom(Coordinate neighbour, Set<Coordinate> boxPositions) {
+		Coordinate target = neighbour.push(this);
+		if (boxPositions.contains(target)) return false;
 		return SokobanBoard.cells[target.row][target.col] != '#'; 
 	}
 	

@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -9,15 +10,18 @@ public class SokobanState implements Comparable<SokobanState> {
 	
 	public final Set<Coordinate> boxLocations;
 	public final Set<Coordinate> reachableLocations;
-	public final Coordinate currentPosition, pushFromPosition;
+	public final Coordinate currentPosition, pushOrPullFromPosition;
 	public final int priority;
 	public final SokobanState parent;
+	public final boolean isReverse;
+	
 	
 	public SokobanState(Set<Coordinate> boxLocations,
-			 Coordinate currentPosition, Coordinate pushFromPosition, SokobanState parent) {
+			 Coordinate currentPosition, Coordinate pushFromPosition, SokobanState parent, boolean isReverse) {
 		this.boxLocations = boxLocations;
 		this.currentPosition = currentPosition;
-		this.pushFromPosition = pushFromPosition;
+		this.pushOrPullFromPosition = pushFromPosition;
+		this.isReverse = isReverse;
 		this.parent = parent;
 		this.reachableLocations = getReachablePositions();
 		this.priority = evaluate();
@@ -62,18 +66,18 @@ public class SokobanState implements Comparable<SokobanState> {
 	public int compareTo(SokobanState o) {
 		return o.priority - priority; // Higher priority first
 	}
-
+	
 	public Set<SokobanState> getChildren() {
 		Set<SokobanState> children = new HashSet<SokobanState>();
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
-				if (reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) {
-					Coordinate playerPosition = box, newBoxPosition = box.push(from);
+				if ((!isReverse && reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) || (isReverse && reachableLocations.contains(from) && box.canBePulledFrom(from, boxLocations))) {
+					Coordinate playerPosition = (isReverse ? from.push(box) : box), newBoxPosition = (isReverse ? from : box.push(from));
 					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>();
 					newBoxPositions.addAll(boxLocations);
 					newBoxPositions.remove(box);
 					newBoxPositions.add(newBoxPosition);
-					SokobanState child = new SokobanState(newBoxPositions, playerPosition, from, this);
+					SokobanState child = new SokobanState(newBoxPositions, playerPosition, from, this, isReverse);
 					if (!child.isDead())
 						children.add(child);
 				}
@@ -84,10 +88,16 @@ public class SokobanState implements Comparable<SokobanState> {
 
 	private int evaluate() {
 		int val = 0;
-		for (Coordinate goal : SokobanBoard.goalPositions) {
+		for (Coordinate goal : (isReverse ? SokobanBoard.startBoxPositions : SokobanBoard.goalPositions)) {
 			if (boxLocations.contains(goal))
 				val += 5;
 		}
+		val += 1*distanceValue();
+
+		if(isReverse){
+			return val;
+		}
+		
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
 				if (reachableLocations.contains(from) && box.isPushableFrom(from, boxLocations)) {
@@ -95,7 +105,21 @@ public class SokobanState implements Comparable<SokobanState> {
 				}
 			}
 		}
-
+		
+		return val;
+	}
+	
+	private int distanceValue(){
+		int val = 0;
+		
+		for (Coordinate box : boxLocations){
+			int dist = Integer.MAX_VALUE;
+			for (Coordinate goal : (isReverse ? SokobanBoard.startBoxPositions : SokobanBoard.goalPositions)){
+				dist = Math.min(dist, (int)Math.sqrt((box.col + goal.col)*(box.col + goal.col) + (box.row + goal.row)*(box.row + goal.row)));
+			}
+			val += dist;
+		}
+		
 		return val;
 	}
 
