@@ -112,12 +112,14 @@ public class SokobanState implements Comparable<SokobanState> {
 		val += REACHED_GOALS_WEIGHT * goalsReached();
 
 
-		if (isReverse) {
-			return val;
-		}
+//		if (isReverse) {
+//			return val;
+//		}
 
 		val += MOBILITY_WEIGHT * mobilityValue();
 
+		//val += SAME_BOX_WEIGHT * sameBox();
+		
 		return val;
 	}
 

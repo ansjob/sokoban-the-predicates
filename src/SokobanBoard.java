@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ public class SokobanBoard {
 	public static Set<Coordinate> goalPositions;
 	public static Set<Coordinate> startBoxPositions;
 	public static boolean[][] staticDead;
+	public static HashMap<Coordinate, Coordinate> tunnels;
 	public static char[][] cells;
 	
 	
@@ -73,8 +75,10 @@ public class SokobanBoard {
 			}
 			rowNum++;
 		}
+		
 		SokobanBoard.goalPositions = goalPositions;
 		SokobanBoard.startBoxPositions = boxPositions;
+		findTunnels(startingPosition);
 		
 
 		
@@ -103,6 +107,42 @@ public class SokobanBoard {
 		
 		startingState = new SokobanState(boxPositions, startingPosition, null, null, false);
 
+	}
+
+
+	private void findTunnels(Coordinate startPos){
+		
+		Set<Coordinate> visited = new HashSet<Coordinate>();
+		
+		findTunnelsHelp(startPos, null, visited);
+		
+		
+	}
+
+	private void findTunnelsHelp(Coordinate cur, Coordinate tunnelStart, Set<Coordinate> visited) {
+		if (visited.contains(cur)){
+			return;
+		}
+		
+		Coordinate nextTunnelCord = null;
+		
+		if (tunnelStart != null){
+			if (cells[cur.left().row][cur.left().col] == '#' && cells[cur.right().row][cur.right().col] == '#'){
+				nextTunnelCord = (tunnelStart.row < cur.row ? cur.down() : cur.up());
+			}  else if (cells[cur.up().row][cur.up().col] == '#' && cells[cur.down().row][cur.down().col] == '#'){
+				nextTunnelCord = (tunnelStart.col < cur.col ? cur.right() : cur.left());
+			}
+			
+			if (cells[nextTunnelCord.row][nextTunnelCord.col] == '#'){
+				// SLUTET PÅ TUNNELS
+				tunnels.put(tunnelStart, cur);
+				tunnels.put(cur, tunnelStart);
+			}
+		}
+		
+		
+		
+		visited.add(cur);
 	}
 
 
