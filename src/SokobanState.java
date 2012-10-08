@@ -1,5 +1,4 @@
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -7,10 +6,8 @@ import java.util.Set;
 public class SokobanState implements Comparable<SokobanState> {
 
 	private static final int REACHED_GOALS_WEIGHT = 50;
-	private static final int DISTANCE_WEIGHT = 10;
 	private static final int MOBILITY_WEIGHT = 20;
 	public final Set<Coordinate> boxLocations;
-//	public final Set<Coordinate> reachableLocations;
 	public final Set<Coordinate> pushOrPullFromPositions;
 	public final Coordinate currentPosition, pushOrPullFromPosition;
 	public final int priority;
@@ -27,7 +24,6 @@ public class SokobanState implements Comparable<SokobanState> {
 		this.isReverse = isReverse;
 		this.pushOrPullFromPositions = calculatePushOrPullFromPositions();
 		this.parent = parent;
-//		this.reachableLocations = getReachablePositions();
 		this.priority = evaluate();
 		this.hashCode = computeHashCode();
 	}
@@ -115,7 +111,6 @@ public class SokobanState implements Comparable<SokobanState> {
 		int val = 0;
 		val += REACHED_GOALS_WEIGHT * goalsReached();
 
-		val += DISTANCE_WEIGHT * distanceValue();
 
 		if (isReverse) {
 			return val;
@@ -150,62 +145,9 @@ public class SokobanState implements Comparable<SokobanState> {
 		return (int) (100 * ((float) doneBoxes / (float) SokobanBoard.startBoxPositions.size()));
 	}
 
-	private int distanceValue() {
-		int val = 0;
-
-		// Max is the diagonal on the board
-		int maxDistance = boxLocations.size() * SokobanBoard.cells.length
-				+ SokobanBoard.cells[0].length;
-
-		for (Coordinate box : boxLocations) {
-			int dist = Integer.MAX_VALUE;
-			for (Coordinate goal : (isReverse ? SokobanBoard.startBoxPositions
-					: SokobanBoard.goalPositions)) {
-				dist = Math.min(
-						dist, Math.abs(box.col - goal.col)
-						+ Math.abs(box.row - box.col));
-			}
-			val += dist;
-		}
-
-		return 100 * (int) ((float) maxDistance / (float) val);
-	}
 
 	private boolean isDead() {
 		return false;
-		// for (Coordinate box : boxLocations){
-		// boolean up = boxLocations.contains(box.up());
-		// boolean down = boxLocations.contains(box.down());
-		// boolean left;
-		// boolean right;
-		// if (!up && ! down){
-		// continue;
-		// }
-		//
-		//
-		// left = boxLocations.contains(box.left());
-		// right = boxLocations.contains(box.right());
-		// if(!left && !right){
-		// continue;
-		// }
-		//
-		// if(left){
-		// if(up && boxLocations.contains(box.up().left())){
-		// return true;
-		// }
-		// if (down && boxLocations.contains(box.down().left())){
-		// return true;
-		// }
-		//
-		// }
-		// if(right){
-		// if (up && boxLocations.contains(box.up().right())){
-		// return true;
-		// }
-		// if (down && boxLocations.contains(box.down().right()));
-		// }
-		// }
-		// return false;
 	}
 
 	private Set<Coordinate> getReachablePositions() {
