@@ -16,21 +16,13 @@ public class Coordinate {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + row;
-		result = prime * result + col;
-		return result;
+		return (row << 16) + col;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		Coordinate other = (Coordinate) obj;
 		if (row != other.row)
 			return false;

@@ -5,10 +5,11 @@ import java.util.Set;
 
 public class SokobanState implements Comparable<SokobanState> {
 
-	private static final int REACHED_GOALS_WEIGHT = 50;
+	private static final int REACHED_GOALS_WEIGHT = 30;
 	private static final int MOBILITY_WEIGHT = 20;
+	private static final int CONTINUITY_WEIGHT = 0;
 	public final Set<Coordinate> boxLocations;
-	public final Set<Coordinate> pushOrPullFromPositions;
+	public final Set<Coordinate> reachableBoxNeighbours;
 	public final Coordinate currentPosition, pushOrPullFromPosition;
 	public final int priority;
 	public final SokobanState parent;
@@ -22,7 +23,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		this.currentPosition = currentPosition;
 		this.pushOrPullFromPosition = pushFromPosition;
 		this.isReverse = isReverse;
-		this.pushOrPullFromPositions = calculatePushOrPullFromPositions();
+		this.reachableBoxNeighbours = calculatePushOrPullFromPositions();
 		this.parent = parent;
 		this.priority = evaluate();
 		this.hashCode = computeHashCode();
@@ -43,14 +44,10 @@ public class SokobanState implements Comparable<SokobanState> {
 	}
 
 	public int computeHashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((boxLocations == null) ? 0 : boxLocations.hashCode());
-		result = prime
-				* result
-				+ ((pushOrPullFromPositions == null) ? 0 : pushOrPullFromPositions
-						.hashCode());
+		result = prime * result + (boxLocations.hashCode());
+		result = prime * result + (reachableBoxNeighbours.hashCode());
 		return result;
 	}
 
@@ -63,16 +60,12 @@ public class SokobanState implements Comparable<SokobanState> {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
 		SokobanState other = (SokobanState) obj;
 		if (hashCode != other.hashCode)
 			return false;
 		if (!boxLocations.equals(other.boxLocations))
 			return false;
-		if (!pushOrPullFromPositions.equals(other.pushOrPullFromPositions))
+		if (!reachableBoxNeighbours.equals(other.reachableBoxNeighbours))
 			return false;
 		return true;
 	}
@@ -86,13 +79,12 @@ public class SokobanState implements Comparable<SokobanState> {
 		Set<SokobanState> children = new HashSet<SokobanState>();
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
-				if ((!isReverse && pushOrPullFromPositions.contains(from) && box
+				if ((!isReverse && reachableBoxNeighbours.contains(from) && box
 						.isPushableFrom(from, boxLocations))
-						|| (isReverse && pushOrPullFromPositions.contains(from) && box
-								.canBePulledFrom(from, boxLocations))) {
+						|| (isReverse && reachableBoxNeighbours.contains(from) && 
+								box.canBePulledFrom(from, boxLocations))) {
 					Coordinate playerPosition = (isReverse ? from.push(box)
-							: box), newBoxPosition = (isReverse ? from : box
-							.push(from));
+							: box), newBoxPosition = (isReverse ? from : box.push(from));
 					Set<Coordinate> newBoxPositions = new HashSet<Coordinate>();
 					newBoxPositions.addAll(boxLocations);
 					newBoxPositions.remove(box);
@@ -110,17 +102,23 @@ public class SokobanState implements Comparable<SokobanState> {
 	private int evaluate() {
 		int val = 0;
 		val += REACHED_GOALS_WEIGHT * goalsReached();
+		
+		val += CONTINUITY_WEIGHT * continuityValue();
 
-
-//		if (isReverse) {
-//			return val;
-//		}
+		if (isReverse)
+			return val;
 
 		val += MOBILITY_WEIGHT * mobilityValue();
-
-		//val += SAME_BOX_WEIGHT * sameBox();
 		
 		return val;
+	}
+
+	private int continuityValue() {
+		if (parent == null) return 100;
+		Coordinate previousPos = parent.currentPosition;
+		int distance = Math.abs(currentPosition.col - previousPos.col)
+				+ Math.abs(currentPosition.row - previousPos.col);
+		return (int) ((float) 100 / (float) distance);
 	}
 
 	private int mobilityValue() {
@@ -128,7 +126,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		int highestPossible = boxLocations.size() * 4;
 		for (Coordinate box : boxLocations) {
 			for (Coordinate from : box.getNeighbours()) {
-				if (pushOrPullFromPositions.contains(from)
+				if (reachableBoxNeighbours.contains(from)
 						&& box.isPushableFrom(from, boxLocations)) {
 					val++;
 				}

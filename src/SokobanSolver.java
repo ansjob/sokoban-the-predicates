@@ -10,6 +10,7 @@ import java.util.Stack;
 public class SokobanSolver {
 
 	SokobanBoard board;
+	int reverseFrequency;
 	
 	public SokobanSolver(SokobanBoard sokobanBoard) {
 		board = sokobanBoard;
@@ -20,11 +21,15 @@ public class SokobanSolver {
 		PriorityQueue<SokobanState> forwardQ = new PriorityQueue<SokobanState>();
 		HashMap<SokobanState, SokobanState> forwardQueuedStates = new HashMap<SokobanState, SokobanState>();
 		
+		reverseFrequency = 8;
+		
 		PriorityQueue<SokobanState> reverseQ = new PriorityQueue<SokobanState>();
 		HashMap<SokobanState, SokobanState> reverseQueuedStates = new HashMap<SokobanState, SokobanState>();
 		
 		forwardQ.add(board.startingState);
 		forwardQueuedStates.put(board.startingState, board.startingState);
+		
+		
 		
 		Set<SokobanState> reveseStart = board.getReverseStartingStates();
 		reverseQ.addAll(reveseStart);
@@ -34,17 +39,23 @@ public class SokobanSolver {
 		
 		
 		int reverse = 0;
-		
+		int forwardCounter = 0, backwardsCounter = 0;
 		
 		while(!forwardQ.isEmpty() || !reverseQ.isEmpty()){
 			
 			SokobanState currentState = (reverse != 0 ? reverseQ.remove(): forwardQ.remove());
 			
 			Set<SokobanState> children = currentState.getChildren();
+			if (reverse != 0)
+				backwardsCounter++;
+			else
+				forwardCounter++;
+
 			for (SokobanState child : children) {	
-				if (reverse != 0){
+				if (reverse != 0) {
 					if (forwardQueuedStates.containsKey(child)){ // VINST	
-						System.out.println("VUNNIT");
+						Utils.DEBUG(0, "Köade %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
+								forwardQueuedStates.size(), reverseQueuedStates.size());
 						return buildReverseForwardSolution(forwardQueuedStates.get(child), child);
 					}
 					
@@ -54,7 +65,9 @@ public class SokobanSolver {
 					}
 				} else {
 					if (reverseQueuedStates.containsKey(child)){ // VINST
-						System.out.println("VUNNIT");
+						
+						Utils.DEBUG(0, "Köade %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
+								forwardCounter, backwardsCounter);
 						return buildReverseForwardSolution(child, reverseQueuedStates.get(child));
 					}
 					
@@ -64,7 +77,7 @@ public class SokobanSolver {
 					}
 				}
 			}
-			reverse = (reverse +1)%4;
+			reverse = (reverse +1)%reverseFrequency;
 		}
 
 		
