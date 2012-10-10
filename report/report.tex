@@ -14,7 +14,7 @@
 \pagestyle{fancy}
 
 \newcommand{\tab}{\hspace*{2em}}
-\title{A reverse and backwards Sokoban solver \\ }
+\title{Solving Sokoban in two directions \\ }
 \author{Andreas Sjöberg \\ \url{ansjob@kth.se} 
 		\and Andreas Gabrielsson \\ \url{andregus@kth.se} 
 		\and Marcus Larsson \\ \url{marcular@kth.se}
@@ -35,14 +35,17 @@
 \begin{abstract}
 This report describes the implementation of a Sokoban puzzle game solver,
 for the course in artificial intelligence.
-The Sokoban puzzle is a popular AI research area, as it proves to be quite
-the difficult problem to solve.
 Our implementation includes bi-directional best-first-searches with various
 optimizations for avoiding deadlocks, limiting memory usage and maximizing
 efficiency.
 The report concludes that while decent results were obtained with our implementation,
 many further improvements can be done to solve the more difficult puzzles for this game.
+
 \end{abstract}
+\noindent{
+\textbf{Keywords}: Sokoban, Artificial Intelligence, puzzle, bidirectional seach, multiton pattern,
+	forward-search, reverse-search 
+}
 
 \clearpage
 
@@ -89,7 +92,7 @@ When we find a path between the starting state and the solved state (where each 
 we simply find the transitions between all of these states and concatenate these to get a complete solution.
 
 \subsection{State definition}
-\ref{sec:statedef}
+\label{sec:statedef}
 
 So what do we mean by a state in Sokoban?
 The naive definition of a state could include the whole puzzle,
@@ -103,7 +106,7 @@ With this definition, the player is able to move freely in the
 open area where it currently is, without entering a different state.
 Yet it still captures the difference between two states where the player is on a different side of a
 box it is unable to move around.
-For example, look at the three maps in Figure \ref{example:states}.
+For example, look at the three situations in Figure \ref{example:states}.
 The first two represent the same state,
 while the last one represents a different state.
 The reachable box neighbours are marked with an \verb!R!.
@@ -127,19 +130,13 @@ The reachable box neighbours are marked with an \verb!R!.
 
 Furthermore, by using sets of coordinates rather than matrices with the boxes in,
 we save some space, since the number of boxes will always be less than the number of squares in any
-given puzzle.
+given map.
 The coordinate system we have used in our implementation is the same as in computer graphics.
 That is, the top left corner is defined to be the origin, and a coordinate is defined to be
 $(row, col)$.
 
 \subsubsection{Example}
 Take a look at the board below for example.
-Here the state is
-$( \{(2, 1), (2, 4), (3, 4)\}, \{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\})$,
-where the box locations are
-$\{(2, 1), (2, 4), (3, 4)\}$,
-and the reachable box neighbours would be
-$\{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\} $.
 
 \begin{verbatimtab}
  0123456
@@ -151,6 +148,15 @@ $\{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\} $.
 5#  *  #
 6#######
 \end{verbatimtab}
+
+Here, the state
+$$
+S = (B, R)
+$$
+where $$B = \{(2, 1), (2, 4), (3, 4)\}$$
+is the set of box locations and
+$$R =\{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\}$$
+is the set of reachable box neighbours.
 
 \subsection{Finding a transition between states}
 
@@ -220,27 +226,31 @@ This may be due to any of the following reasons;
 
 
 \subsection{Changing heuristic weights}
-We have continuously monitored our agent using VisualVM %KÄLLA?
-. By doing that we could see that the memory is filled up after certain amount of time, around 30 seconds. 
-Then the agent are using the CPU until the memory is filled up and after that the garbage collector tries to free 
-memory but are unable to do so because almost every object are referenced by the agent. This results in a behavior 
-where both the agent and the garbage collector are unable to do any valuable work so it does not come closer to the solution. 
+We have continuously monitored our agent with a CPU and memory sampler.
+By doing that we could see that the memory filled up after certain amount of time. 
+Then the agent is using the CPU until the memory is filled up and after that the garbage collector tries to free 
+memory but is unable to do so because almost every object is referenced by the agent. 
+This results in a situation where both the agent and the garbage 
+collector are unable to do any valuable work so it does not come closer to the solution. 
 
-This is of course a bad usage of the time frame. To solve this problem the agent tries to find a solution using the hard coded
-weights on the heuristics. If it fails within a time limit it starts over with the continuity value weighted more because this could help 
-find a solution for maps where there are a lot of tunnels. If this also fails within a time limit the agent will start to randomize 
-the weights and try a lot of different weights for a short time. 
+This is of course a bad usage of the time frame. 
+To solve this problem the agent tries to find a solution using reasonable weights on the heuristic functions.
+If it fails within a time limit it starts over with the continuity value weighted more because this could help 
+find a solution for puzzles where there are a lot of tunnels. 
+If this also fails within a time limit the agent will start to randomize 
+the weights and try a lot of different weights for short periods of time. 
 
-The problem with this solution is that all previous work becomes useless since the agent starts over again. But because of the memory
-problem it would not have done any useful work anyway so it is best to start over again and hope that the new approach is better. 
+The problem with this solution is that all previous work becomes useless since the agent starts over again. 
+But because of the memory problem it would not have done any useful work anyway so 
+it is best to start over again and hope that the new approach is better. 
 
 \subsection{Eliminating dead states}
 
 \label{sec:dead}
 
 We implemented the simplest type of dead state detection we could think of,
-namely to avoid pushing boxes into static dead positions in the puzzle.
-By static dead positions we mean positions where if the map was empty,
+namely to avoid pushing boxes into static dead positions in the map.
+By static dead positions we mean positions where if there were no other boxes in the puzzle,
 we could not move a box in that position into any of the goals.
 
 The algorithm for this is simple, and runs one time before the search starts.
@@ -305,28 +315,36 @@ but only references to the same one.
 This saves lots of memory, since many states will have references to the same coordinates.
 
 When sampling the agent with VisualVm we noticed that a lot of time was spent in the Sokoban states \verb!equals()! and \verb!hashCode()! methods. 
-Typical values were 40\% of the time in each method which would mean that only 20\% of the time was used to other methods that actually brings
-the agent closer to the solution.
+Most of the time was used for these methods, which meant not much time was spent with
+other methods that actually brings the agent closer to a solution.
 That is no surprise since all states are stored in hash tables. By only calculating the hash value once and then store that value
-we were able to reduce the time spent in \verb!hashCode()! to around 20\% of the total time. \verb!equals()! was improved as well
-down to using around 10\% of the total time. This means that 70\% of the time is used for other purposes.
-
+we were able to reduce the time spent in \verb!hashCode()! and \verb!equals()! substantially.
+Another approach to improving the \verb!equals()! method we use
+is to first check the precomputed hash code,
+and skip checking for \verb!null! pointers and such.
 
 \subsection{First approach}
-Our first approach, by the milestone deadline, did not use almost any of the optimizations discussed in the method description and in section~\ref{sec:opt}.
-By then the only heuristics value was the goal on boxes value and only all maps were solved by the forward solver. 
-The static deadlock detection discussed in section~\ref{sec:dead} was the only one.
-The strong features of this implementation was the smart state definition discussed in~\ref{sec:statedef} and the deadlock detection. 
+Initially, a regular breath-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
 
-By then the agent solved 38 maps on the evaluation server, 42 maps on the test server with port 5032 and none of the first 100 maps on the 
+The agent used by the milestone deadline, hardly used any of the optimizations discussed in the method description and in Section~\ref{sec:opt}.
+By then the only heuristics value was a boxes on goals value, using only the forward solver. 
+The static deadlock detection discussed in Section~\ref{sec:dead} was also used at this point.
+The strong features of this implementation was the smart state definition discussed in Section~\ref{sec:statedef} and the deadlock detection. 
+
+This implementation solved 42 puzzles on the test server with port 5032 and none of the first 100 puzzles on the 
 test server with port 5031. 
-
-Even before that, when regular breath-first-search was used, the agent solved 16 maps on the evaluation server. 
-Without the deadlock detection the agent were not able to solve any of the maps on the test server with port 5032.
 
 \subsection{Final approach}
 
-In the final agent all optimization discussed previously are present. 
+In the final agent all optimization discussed previously are present,
+and we added one more optimization to the coordinates implementation.
+We noticed that a substantial amount of time was spent calculating
+a coordinate's neighbours, which is very unneccessary since
+we are using the multiton pattern.
+We precomputed this function, which reduced execution time even further. 
+
+This final submission solves about 94 puzzles on the test server port 5032,
+and about half of the first 100 puzzles in the difficult set on port 5031.
 
 \section{Discussion}
 
@@ -338,8 +356,9 @@ There are several improvements that we considered, but were
 deemed either too difficult or time consuming to implement.
 One example of such an improvement would be to introduce dynamic
 dead lock detection to some degree.
-
-\section{Conclusions}
-
+Another is to implement so called ''tunnel macros'',
+which would recognize tunnels, and prohibit the player
+from pushing a box part way through a tunnel and consider this as a new state.
+The new state should instead be when the player has pushed the box to the end of a tunnel.
 
 \end{document}
