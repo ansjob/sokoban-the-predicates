@@ -171,6 +171,7 @@ If one of them detects that they are visiting a state the other has already visi
 a solution has been found, and the paths are ''stitched together'' to form the answer.
 
 \subsubsection{Prioritizing states}
+\label{sec:prio}
 
 Since the state-space grows rapidly, there is a need to
 prioritize the order in which the states are explored.
@@ -197,6 +198,7 @@ This may be due to any of the following reasons;
 	and we computed the distance between a box and \emph{the closest} goal, which may not be correct.
 
 \subsection{Eliminating dead states}
+
 
 We implemented the simplest type of dead state detection we could think of,
 namely to avoid pushing boxes into static dead positions in the puzzle.
@@ -242,6 +244,16 @@ allows us to prune lots of dead states with little effort.
 6#######
 
 \end{verbatimtab}
+
+The other dead states are not as static as the ones discussed above. 
+It can for example be when four boxes are pushed together in a two times two square when they are not on a goal.
+In the backwards solver this particular kind of dead state is not really a problem since it is
+impossible to pull four boxes to such a square.
+In the forward solver this problem is tackled by using the mobility value discussed in section~\ref{sec:prio}. 
+
+There are even more dead states that are harder to detect but those are not considered. 
+
+
 
 \section{Results}
 
