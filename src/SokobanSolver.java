@@ -9,14 +9,31 @@ import java.util.Stack;
 
 public class SokobanSolver {
 
+	private static final long SWITCHING_THRESHOLD = 50000; //in milliseconds
 	SokobanBoard board;
 	int reverseFrequency;
+	private boolean isSecondAttempt;
+	private long startTime;
 	
 	public SokobanSolver(SokobanBoard sokobanBoard) {
-		board = sokobanBoard;
+		this(sokobanBoard, false);
 	}
 	
+	private SokobanSolver(SokobanBoard board, boolean isSecondAttempt) {
+		this.board = board;
+		this.isSecondAttempt = isSecondAttempt;
+		if (isSecondAttempt) {
+			doSecondAttemptAdjustments();
+		}
+	}
+	
+	private void doSecondAttemptAdjustments() {
+		SokobanState.CONTINUITY_WEIGHT = 5;
+	}
+
 	public String getForwardReverseSolution(){
+		
+		initStartTime();
 		
 		PriorityQueue<SokobanState> forwardQ = new PriorityQueue<SokobanState>();
 		HashMap<SokobanState, SokobanState> forwardQueuedStates = new HashMap<SokobanState, SokobanState>();
@@ -37,11 +54,14 @@ public class SokobanSolver {
 			reverseQueuedStates.put(state, state);
 		}
 		
-		
 		int reverse = 0;
 		int forwardCounter = 0, backwardsCounter = 0;
 		
-		while(!forwardQ.isEmpty() || !reverseQ.isEmpty()){
+		while((!forwardQ.isEmpty() || !reverseQ.isEmpty())){
+			
+			if (timeToTryAnotherMethod()){
+				break;
+			}
 			
 			SokobanState currentState = (reverse != 0 ? reverseQ.remove(): forwardQ.remove());
 			
@@ -54,7 +74,7 @@ public class SokobanSolver {
 			for (SokobanState child : children) {	
 				if (reverse != 0) {
 					if (forwardQueuedStates.containsKey(child)){ // VINST	
-						Utils.DEBUG(0, "Köade %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
+						Utils.DEBUG(0, "Undersökte %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
 								forwardQueuedStates.size(), reverseQueuedStates.size());
 						return buildReverseForwardSolution(forwardQueuedStates.get(child), child);
 					}
@@ -66,7 +86,7 @@ public class SokobanSolver {
 				} else {
 					if (reverseQueuedStates.containsKey(child)){ // VINST
 						
-						Utils.DEBUG(0, "Köade %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
+						Utils.DEBUG(0, "Undersökte %d states i framåtsökningen och %d states i bakåtsökningen\n ", 
 								forwardCounter, backwardsCounter);
 						return buildReverseForwardSolution(child, reverseQueuedStates.get(child));
 					}
@@ -80,12 +100,25 @@ public class SokobanSolver {
 			reverse = (reverse +1)%reverseFrequency;
 		}
 
-		
-		
-		
-		return "NO SOLUTION FOUND";
+		if (isSecondAttempt) {
+			return "NO SOLUTION" ; 
+		}
+		else {
+			Utils.DEBUG(0, "Making second attempt!\n");
+			return new SokobanSolver(board, true).getForwardReverseSolution();
+		}
 	}
 
+
+	private void initStartTime() {
+		startTime = System.currentTimeMillis();
+	}
+
+	private boolean timeToTryAnotherMethod() {
+		if (isSecondAttempt) return false;
+		long timeElapsed = System.currentTimeMillis() - startTime;
+		return timeElapsed > SWITCHING_THRESHOLD;
+	}
 
 	public String getSolution() {
 		
