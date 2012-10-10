@@ -3,32 +3,49 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 
 
 public class SokobanSolver {
 
-	private static final long SWITCHING_THRESHOLD = 50000; //in milliseconds
+	private static final long SWITCHING_THRESHOLD = 30000; //in milliseconds
+	private static final long SECOND_SWITCHING_THRESHOLD = 10000;
+	private static final long SUBSEQUENT_SWITCHING_THRESHOLD = 1000;
 	SokobanBoard board;
 	int reverseFrequency;
-	private boolean isSecondAttempt;
+	private int attemptNumber;
 	private long startTime;
 	
 	public SokobanSolver(SokobanBoard sokobanBoard) {
-		this(sokobanBoard, false);
+		this(sokobanBoard, 1);
 	}
 	
-	private SokobanSolver(SokobanBoard board, boolean isSecondAttempt) {
+	private SokobanSolver(SokobanBoard board, int attemptNumber) {
 		this.board = board;
-		this.isSecondAttempt = isSecondAttempt;
-		if (isSecondAttempt) {
+		
+		this.attemptNumber = attemptNumber;
+		
+		if (attemptNumber == 1) return;
+		
+		if (attemptNumber == 2) {
 			doSecondAttemptAdjustments();
+			return;
 		}
+		
+		doSubsequentAttemptsAdjustments();
 	}
 	
 	private void doSecondAttemptAdjustments() {
 		SokobanState.CONTINUITY_WEIGHT = 5;
+	}
+	
+	private void doSubsequentAttemptsAdjustments() {
+		Random r = new Random();
+		SokobanState.CONTINUITY_WEIGHT = r.nextInt(10);
+		SokobanState.MOBILITY_WEIGHT = r.nextInt(10);
+		SokobanState.REACHED_GOALS_WEIGHT = r.nextInt(10);
 	}
 
 	public String getForwardReverseSolution(){
@@ -99,14 +116,9 @@ public class SokobanSolver {
 			}
 			reverse = (reverse +1)%reverseFrequency;
 		}
-
-		if (isSecondAttempt) {
-			return "NO SOLUTION" ; 
-		}
-		else {
-			Utils.DEBUG(0, "Making second attempt!\n");
-			return new SokobanSolver(board, true).getForwardReverseSolution();
-		}
+			
+		Utils.DEBUG(0, "Making attempt number %d!\n", attemptNumber + 1);
+		return new SokobanSolver(board, attemptNumber +1).getForwardReverseSolution();
 	}
 
 
@@ -115,9 +127,16 @@ public class SokobanSolver {
 	}
 
 	private boolean timeToTryAnotherMethod() {
-		if (isSecondAttempt) return false;
 		long timeElapsed = System.currentTimeMillis() - startTime;
-		return timeElapsed > SWITCHING_THRESHOLD;
+		if (attemptNumber == 1) {
+			return timeElapsed > SWITCHING_THRESHOLD;
+		}
+		else if (attemptNumber == 2) {
+			return timeElapsed > SECOND_SWITCHING_THRESHOLD;
+		}
+		else {
+			return timeElapsed > SUBSEQUENT_SWITCHING_THRESHOLD;
+		}
 	}
 
 	public String getSolution() {
