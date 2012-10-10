@@ -34,6 +34,7 @@ public class SokobanBoard {
 				Coordinate.coordinates[i][j] = new Coordinate(i, j);
 			}
 		}
+		Coordinate.initNeighbours();
 		int rowNum = 0;
 		for (String row : rows) {
 			int colNum = 0;
@@ -91,7 +92,7 @@ public class SokobanBoard {
 			staticDead[goal.row][goal.col] = false;
 			while (!q.isEmpty()){
 				Coordinate cur = q.remove();
-				for(Coordinate neighbour : cur.getNeighbours()){
+				for(Coordinate neighbour : cur.neighbours){
 					if (!visited.contains(neighbour)  
 							&& cells[neighbour.row][neighbour.col] != '#' 
 							&& cur.canBePulledFromNoBoxes(neighbour))
@@ -149,14 +150,12 @@ public class SokobanBoard {
 
 	public Set<SokobanState> getReverseStartingStates() {
 		Set<SokobanState> rs = new HashSet<SokobanState>();
-		Set<Coordinate> neighbours = null;
 		
 		
 		for (Coordinate box : goalPositions){
-			neighbours = box.getNeighbours();
-			for (Coordinate neigh: neighbours){
-				if (cells[neigh.row][neigh.col] == '#' || !box.canBePulledFrom(neigh, goalPositions) ) continue;
-				SokobanState state = new SokobanState(goalPositions, neigh, null, null, true);
+			for (Coordinate neighbour: box.neighbours){
+				if (cells[neighbour.row][neighbour.col] == '#' || !box.canBePulledFrom(neighbour, goalPositions) ) continue;
+				SokobanState state = new SokobanState(goalPositions, neighbour, null, null, true);
 				rs.add(state);
 			}
 		}

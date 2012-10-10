@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,6 +8,7 @@ public class Coordinate {
 	public static Coordinate[][] coordinates; 
 	
 	public final int row,col;
+	public Coordinate[] neighbours;
 	
 
 	public Coordinate(int row, int col) {
@@ -36,15 +38,19 @@ public class Coordinate {
 		return "Coordinate [row=" + row + ", col=" + col + "]";
 	}
 	
-	public Set<Coordinate> getNeighbours() {
-		Set<Coordinate> neighbours = new HashSet<Coordinate>(10);
-		neighbours.add(left());
-		neighbours.add(right());
-		neighbours.add(down());
-		neighbours.add(up());
+	private void calculateNeighbours() {
+		ArrayList<Coordinate> neighbours = new ArrayList<Coordinate>(4);
 		
-		return neighbours;
+		if (row != 0)
+			neighbours.add(up());
+		if (row != SokobanBoard.cells.length -1)
+			neighbours.add(down());
+		if (col != 0)
+			neighbours.add(left());
+		if (col != SokobanBoard.cells[0].length -1)
+			neighbours.add(right());
 		
+		this.neighbours = neighbours.toArray(new Coordinate[neighbours.size()]);
 	}
 
 	public char getMoveChar(Coordinate from) {
@@ -113,5 +119,13 @@ public class Coordinate {
 	}
 	public Coordinate up(){
 		return coordinates[this.row-1][this.col];
+	}
+
+	public static void initNeighbours() {
+		for (Coordinate[] row : coordinates) {
+			for (Coordinate coord : row) {
+				coord.calculateNeighbours();
+			}
+		}
 	}
 }

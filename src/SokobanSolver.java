@@ -11,8 +11,8 @@ import java.util.Stack;
 public class SokobanSolver {
 
 	private static final long SWITCHING_THRESHOLD = 30000; //in milliseconds
-	private static final long SECOND_SWITCHING_THRESHOLD = 10000;
-	private static final long SUBSEQUENT_SWITCHING_THRESHOLD = 1000;
+	private static final long SECOND_SWITCHING_THRESHOLD = 5000;
+	private static final long SUBSEQUENT_SWITCHING_THRESHOLD = 4000;
 	SokobanBoard board;
 	int reverseFrequency;
 	private int attemptNumber;
@@ -55,7 +55,7 @@ public class SokobanSolver {
 		PriorityQueue<SokobanState> forwardQ = new PriorityQueue<SokobanState>();
 		HashMap<SokobanState, SokobanState> forwardQueuedStates = new HashMap<SokobanState, SokobanState>();
 		
-		reverseFrequency = 8;
+		reverseFrequency = 4;
 		
 		PriorityQueue<SokobanState> reverseQ = new PriorityQueue<SokobanState>();
 		HashMap<SokobanState, SokobanState> reverseQueuedStates = new HashMap<SokobanState, SokobanState>();
@@ -194,7 +194,7 @@ public class SokobanSolver {
 		
 		while (!q.isEmpty()) {
 			Coordinate curPos = q.remove();
-			for (Coordinate neighbour : curPos.getNeighbours()) {
+			for (Coordinate neighbour : curPos.neighbours) {
 				if (!queued.contains(neighbour) && !forwardState.boxLocations.contains(neighbour) && SokobanBoard.cells[neighbour.row][neighbour.col] != '#') {
 					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
 					q.add(neighbour);
@@ -211,7 +211,7 @@ public class SokobanSolver {
 		StringBuilder reverseSolution = new StringBuilder();
 		Coordinate currentPos = backwardState.currentPosition;
 		while (distance[currentPos.row][currentPos.col] > 0) {
-			for (Coordinate neighbour : currentPos.getNeighbours()) {
+			for (Coordinate neighbour : currentPos.neighbours) {
 				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
 					reverseSolution.append(currentPos.getMoveChar(neighbour));
 					currentPos = neighbour;
@@ -251,7 +251,7 @@ public class SokobanSolver {
 		
 		while (!q.isEmpty()) {
 			Coordinate curPos = q.remove();
-			for (Coordinate neighbour : curPos.getNeighbours()) {
+			for (Coordinate neighbour : curPos.neighbours) {
 				if (!queued.contains(neighbour) && !to.boxLocations.contains(neighbour) && SokobanBoard.cells[neighbour.row][neighbour.col] != '#') {
 					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
 					q.add(neighbour);
@@ -271,7 +271,7 @@ public class SokobanSolver {
 		currentPos = to.currentPosition;
 		
 		while (distance[currentPos.row][currentPos.col] > 0) {
-			for (Coordinate neighbour : currentPos.getNeighbours()) {
+			for (Coordinate neighbour : currentPos.neighbours) {
 				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
 					reverseSol.append(currentPos.getMoveChar(neighbour));
 					currentPos = neighbour;
@@ -313,7 +313,7 @@ public class SokobanSolver {
 		
 		while (!q.isEmpty()) {
 			Coordinate curPos = q.remove();
-			for (Coordinate neighbour : curPos.getNeighbours()) {
+			for (Coordinate neighbour : curPos.neighbours) {
 				if (!queued.contains(neighbour) && !from.boxLocations.contains(neighbour) && SokobanBoard.cells[neighbour.row][neighbour.col] != '#') {
 					distance[neighbour.row][neighbour.col] = distance[curPos.row][curPos.col] + 1;
 					q.add(neighbour);
@@ -331,7 +331,7 @@ public class SokobanSolver {
 		Coordinate currentPos = to.pushOrPullFromPosition;
 		reverseSolution.append(to.currentPosition.getMoveChar(to.pushOrPullFromPosition, true));
 		while (distance[currentPos.row][currentPos.col] > 0) {
-			for (Coordinate neighbour : currentPos.getNeighbours()) {
+			for (Coordinate neighbour : currentPos.neighbours) {
 				if (distance[neighbour.row][neighbour.col] == distance[currentPos.row][currentPos.col] -1) {
 					reverseSolution.append(currentPos.getMoveChar(neighbour));
 					currentPos = neighbour;

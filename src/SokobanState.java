@@ -34,7 +34,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		Set<Coordinate> pushOrPullFromPositions = new HashSet<Coordinate>();
 		
 		for (Coordinate box : boxLocations) {
-			for (Coordinate neighbour : box.getNeighbours()) {
+			for (Coordinate neighbour : box.neighbours) {
 				if (reachablePositions.contains(neighbour)) {
 					pushOrPullFromPositions.add(neighbour);
 				}
@@ -78,7 +78,7 @@ public class SokobanState implements Comparable<SokobanState> {
 	public Set<SokobanState> getChildren() {
 		Set<SokobanState> children = new HashSet<SokobanState>();
 		for (Coordinate box : boxLocations) {
-			for (Coordinate from : box.getNeighbours()) {
+			for (Coordinate from : box.neighbours) {
 				if ((!isReverse && reachableBoxNeighbours.contains(from) && box
 						.isPushableFrom(from, boxLocations))
 						|| (isReverse && reachableBoxNeighbours.contains(from) && 
@@ -91,8 +91,7 @@ public class SokobanState implements Comparable<SokobanState> {
 					newBoxPositions.add(newBoxPosition);
 					SokobanState child = new SokobanState(newBoxPositions,
 							playerPosition, from, this, isReverse);
-					if (!child.isDead())
-						children.add(child);
+					children.add(child);
 				}
 			}
 		}
@@ -125,7 +124,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		int val = 0;
 		int highestPossible = boxLocations.size() * 4;
 		for (Coordinate box : boxLocations) {
-			for (Coordinate from : box.getNeighbours()) {
+			for (Coordinate from : box.neighbours) {
 				if (reachableBoxNeighbours.contains(from)
 						&& box.isPushableFrom(from, boxLocations)) {
 					val++;
@@ -145,11 +144,6 @@ public class SokobanState implements Comparable<SokobanState> {
 		return (int) (100 * ((float) doneBoxes / (float) SokobanBoard.startBoxPositions.size()));
 	}
 
-
-	private boolean isDead() {
-		return false;
-	}
-
 	private Set<Coordinate> getReachablePositions() {
 		Set<Coordinate> result = new HashSet<Coordinate>();
 		Queue<Coordinate> q = new LinkedList<Coordinate>();
@@ -157,7 +151,7 @@ public class SokobanState implements Comparable<SokobanState> {
 		result.add(currentPosition);
 		while (!q.isEmpty()) {
 			Coordinate cur = q.remove();
-			for (Coordinate neighbour : cur.getNeighbours()) {
+			for (Coordinate neighbour : cur.neighbours) {
 				if (SokobanBoard.cells[neighbour.row][neighbour.col] != '#'
 						&& !boxLocations.contains(neighbour)
 						&& !result.contains(neighbour)) {
