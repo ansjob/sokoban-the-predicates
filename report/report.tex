@@ -149,11 +149,8 @@ Take a look at the situation below for example.
 6#######
 \end{verbatimtab}
 
-Here, the state
-$$
-S = (B, R)
-$$
-where $$B = \{(2, 1), (2,2),(2, 4), (3, 4), (5,3)\}$$
+Here, the state $S = (B, R)$ where
+$$B = \{(2, 1), (2,2),(2, 4), (3, 4), (5,3)\}$$
 is the set of box locations and
 $$R =\{(1,1), (1,2), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5), (4,3), (4,4), (5,2), (5,4)\}$$
 is the set of reachable box neighbours.
@@ -301,9 +298,8 @@ In the backwards solver this particular kind of dead state is not really a probl
 impossible to pull four boxes to such a square.
 In the forward solver this problem is tackled by using the mobility value discussed in section~\ref{sec:prio}.
 
-There are even more dead states that are harder to detect but we decided not
-to implement any detection algorithms for such, because most probably the
-workload of finding those would just overburden the actual search.
+We decided against implementing any detection algorithms for the other, dynamic deadlocks,
+because most probably the workload of finding those would just overburden the actual search.
 At least we did not find it worthwhile to find and implement such an algorithm.
 
 \section{Results}
