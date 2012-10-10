@@ -303,9 +303,16 @@ This means there will not be several object instances for the same coordinate,
 but only references to the same one.
 This saves lots of memory, since many states will have references to the same coordinates.
 
-%Om sampling, hashCode, equals
-
 \section{Discussion}
+
+With limited time, and as a first approach to solving this problem,
+we feel the implementation is good enough.
+Our aim was to keep the solver as simple as possible,
+while still solving a decent amount of the test puzzles.
+There are several improvements that we considered, but were
+deemed either too difficult or time consuming to implement.
+One example of such an improvement would be to introduce dynamic
+dead lock detection to some degree.
 
 \section{Conclusions}
 
