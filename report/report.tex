@@ -334,7 +334,7 @@ was naturally reduced.
 The reason to why it spent such a big portion of time in those methods is not a surprise,
 since all states are stored in hash tables, and much of the work consists of
 adding or looking in these tables.
-By only calculating the hash value once and then store that value
+By only calculating the hash value for a state once and then storing that value,
 we were able to reduce the time spent in \verb!hashCode()! and \verb!equals()! substantially.
 Another adjustment we made to improve the \verb!equals()! method was to first compare precomputed hash codes,
 and skip checking for \verb!null! pointers and such.
