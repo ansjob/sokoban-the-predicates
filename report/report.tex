@@ -195,7 +195,7 @@ Also, the usual benefits of bidirectional search makes this approach compelling.
 To implement the bidirectional search, we have the two different algorithms
 for forward and backwards searching, and they alternate in execution.
 If one of them detects that they are visiting a state the other has already visited,
-a solution has been found, and the paths are ''stitched together'' to form the answer.
+a solution has been found, and the two paths are merged together to form the final answer.
 
 \subsubsection{Prioritizing states}
 \label{sec:prio}
@@ -308,11 +308,20 @@ At least we did not find it worthwhile to find and implement such an algorithm.
 
 \section{Results}
 
+\subsection{First approach}
+Initially, a regular forward breadth-first-search with static deadlock detection (see Section~\ref{sec:dead}
+was used and the agent solved 16 maps on the evaluation server.
+The agent used by the milestone deadline was further improved with the boxes on goal evaluation heuristic.
+The strong features of this implementation was the smart state definition
+discussed in Section~\ref{sec:statedef}, basic the deadlock detection and at least \emph{one} indication
+for comparing states.
+This implementation solved 42 puzzles on the first test server and hardly any of the first 100 puzzles on the 
+second test server.
 
 \subsection{Performance Optimizations}
 \label{sec:opt}
 In addition to the algorithm optimizations, such as the state definition and bidirectional search,
-we have made some implementation specific optimizations.
+we then made some implementation specific optimizations.
 To increase performance we implemented
 the coordinates using the multiton pattern.
 This means there will not be several object instances for the same coordinate,
@@ -330,28 +339,15 @@ we were able to reduce the time spent in \verb!hashCode()! and \verb!equals()! s
 Another adjustment we made to improve the \verb!equals()! method was to first compare precomputed hash codes,
 and skip checking for \verb!null! pointers and such.
 
-\subsection{First approach}
-Initially, a regular breadth-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
-
-The agent used by the milestone deadline, hardly used any of the optimizations discussed in the method description and in Section~\ref{sec:opt}.
-By then the only heuristics value was a boxes on goals value, using only the forward solver. 
-The static deadlock detection discussed in Section~\ref{sec:dead} was also used at this point.
-The strong features of this implementation was the smart state definition discussed in Section~\ref{sec:statedef} and the deadlock detection. 
-
-This implementation solved 42 puzzles on the test server with port 5032 and none of the first 100 puzzles on the 
-test server with port 5031. 
+Furthermore, we noticed that a substantial amount of time was spent calculating
+a coordinate's neighbours, which is very unnecessary since
+we are using the multiton pattern, and neighbours are basically constant throughout the puzzle.
+By precomputing this function, we reduced execution time even further.
 
 \subsection{Final approach}
-
-In the final agent all optimization discussed previously are present,
-and we added one more optimization to the coordinates implementation.
-We noticed that a substantial amount of time was spent calculating
-a coordinate's neighbours, which is very unnecessary since
-we are using the multiton pattern.
-We precomputed this function, which reduced execution time even further.
-
-This final submission solves about 94 puzzles on the test server port 5032,
-and about half of the first 100 puzzles in the difficult set on port 5031.
+In the final agent all optimization mentioned above were used,
+and this final submission solves about 94 puzzles on the first test server,
+and about half of the first 100 puzzles in the difficult set from the second server.
 
 \section{Discussion}
 
@@ -361,6 +357,7 @@ Our aim was to keep the solver as simple as possible,
 while still solving a decent amount of the test puzzles.
 There are several improvements that we considered, but were
 deemed either too difficult or time consuming to implement.
+
 One example of such an improvement would be to introduce dynamic
 dead lock detection to some degree.
 Our implementation only discovers the simplest type of dead lock situations,
