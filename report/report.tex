@@ -96,7 +96,7 @@ we simply find the transitions between all of these states and concatenate these
 
 What do we mean by a state in Sokoban?
 The naive definition of a state could include the whole puzzle,
-including the positions of the boxes, the player.
+including the positions of the boxes and the player.
 Including walls and goal positions in the state would be wasteful,
 as they can never be moved throughout the game.
 
@@ -205,7 +205,7 @@ prioritize the order in which the states are explored.
 We decided to use a best-first-search approach for both directions of the search.
 Given a good evaluation function, best-first-search is a reasonable
 approach, since it will explore states close to the solution first.
-This is to prefer compared to for example an $A*$ algorithm,
+This is to prefer compared to for example an $A^*$ algorithm,
 because we are not concerned with how deep in the
 search tree we have explored, we only need to find 
 \emph{a} solution as quick as possible.
@@ -331,7 +331,7 @@ Another adjustment we made to improve the \verb!equals()! method was to first co
 and skip checking for \verb!null! pointers and such.
 
 \subsection{First approach}
-Initially, a regular breath-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
+Initially, a regular breadth-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
 
 The agent used by the milestone deadline, hardly used any of the optimizations discussed in the method description and in Section~\ref{sec:opt}.
 By then the only heuristics value was a boxes on goals value, using only the forward solver. 
