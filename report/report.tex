@@ -102,8 +102,29 @@ With this definition, the player is able to move freely in the
 open area where it currently is, without entering a different state.
 Yet it still captures the difference between two states where the player is on a different side of a
 box it is unable to move around.
+For example, look at the three maps in Figure \ref{example:states}.
+The first two represent the same state,
+while the last one represents a different state.
+The reachable box neighbours are marked with an \verb!R!.
 
-%XXX "wall" example goes here
+\begin{figure}[h!]
+	\centering
+\begin{center}
+\begin{verbatimtab}[6]
+			############ ############ ############
+			#   R$    .# #   R$    .# #    $R   .#
+			#   R$    .# #  @R$    .# #    $R@  .#
+			#@  R$    .# #   R$    .# #    $R   .#
+			############ ############ ############
+\end{verbatimtab}
+\end{center}
+	\label{example:states}
+	\caption{
+		Three different situations that yield two different Sokoban states.
+	}
+\end{figure}
+
+\begin{tabular}
 
 Furthermore, by using sets of coordinates rather than matrices with the boxes in,
 we save some space, since the number of boxes will always be less than the number of squares in any
@@ -112,12 +133,13 @@ The coordinate system we have used in our implementation is the same as in compu
 That is, the top left corner is defined to be the origin, and a coordinate is defined to be
 $(row, col)$.
 
-%XXX - include state example
 \subsubsection{Example}
 Take a look at the board below for example.
-In this board, the box locations would be
+Here the state is
+$( \{(2, 1), (2, 4), (3, 4)\}, \{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\})$,
+where the box locations are
 $\{(2, 1), (2, 4), (3, 4)\}$,
-and the push-from-positions would be
+and the reachable box neighbours would be
 $\{(1,1), (2,2), (2,3), (2,5), (3,1), (3,3), (3,5)\} $.
 
 \begin{verbatimtab}
@@ -269,17 +291,19 @@ In the forward solver this problem is tackled by using the mobility value discus
 
 There are even more dead states that are harder to detect but those are not considered simply because it is not very simple.
 
-
-
 \section{Results}
 
-\subsection{Performance Optimizations}
 
-In order to squeeze some better performance out of the implementation we implemented
+\subsection{Performance Optimizations}
+In addition to the algorithm optimizations, such as the state definition and bidirectional search,
+we have made some implementation specific optimizations.
+In order to squeeze some better performance we implemented
 the coordinates using the multiton pattern.
 This means there will not be several object instances for the same coordinate,
-but only reference to the same one.
+but only references to the same one.
 This saves lots of memory, since many states will have references to the same coordinates.
+
+%Om sampling, hashCode, equals
 
 \section{Discussion}
 
