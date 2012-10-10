@@ -124,7 +124,7 @@ The reachable box neighbours are marked with an \verb!R!.
 \end{center}
 	\label{example:states}
 	\caption{
-		Three different situations that yield two different Sokoban states.
+		Three different situations that yield two different states.
 	}
 \end{figure}
 
@@ -255,10 +255,8 @@ We implemented the simplest type of dead state detection we could think of,
 namely to avoid pushing boxes into static dead positions in the map.
 By static dead positions we mean positions where if there were no other boxes in the puzzle,
 we could not move a box in that position into any of the goals.
-
 The algorithm for this is simple, and runs one time before the search starts.
 
-\clearpage
 \begin{algorithm}
 \caption{Marking Sokoban board positions as static dead or alive}
 \label{alg:dead_positions}
@@ -282,7 +280,7 @@ Algorithm \ref{alg:dead_positions} will mark corners and positions along the
 ''outer walls'' as statically dead, unless they contain a goal or a path to a goal.
 In the example below, the dead positions have been marked with \verb!X!.
 There are of course significantly more dead situations but this simple approach 
-allows us to prune lots of dead states with little effort.
+allows us to prune quite a few dead states with little effort.
 
 \begin{verbatimtab}
  0123456
@@ -315,19 +313,21 @@ At least we did not find it worthwhile to find and implement such an algorithm.
 \label{sec:opt}
 In addition to the algorithm optimizations, such as the state definition and bidirectional search,
 we have made some implementation specific optimizations.
-In order to squeeze some better performance we implemented
+To increase performance we implemented
 the coordinates using the multiton pattern.
 This means there will not be several object instances for the same coordinate,
-but only references to the same one.
-This saves lots of memory, since many states will have references to the same coordinates.
+but only references to the same instance.
+This saves a lot of memory, since many states will have references to the same coordinates.
 
-When sampling the agent with VisualVm we noticed that a lot of time was spent in the Sokoban states \verb!equals()! and \verb!hashCode()! methods. 
-Most of the time was used for these methods, which meant not much time was spent with
-other methods that actually brings the agent closer to a solution.
-That is no surprise since all states are stored in hash tables. By only calculating the hash value once and then store that value
+When sampling the agent we noticed that a big percentage of the time was spent in the state \verb!equals()! and \verb!hashCode()! methods. 
+With most of the time spent in these methods, the time for bringing the agent closer to a solution
+was naturally reduced.
+The reason to why it spent such a big portion of time in those methods is not a surprise,
+since all states are stored in hash tables, and much of the work consists of
+adding or looking in these tables.
+By only calculating the hash value once and then store that value
 we were able to reduce the time spent in \verb!hashCode()! and \verb!equals()! substantially.
-Another approach to improving the \verb!equals()! method we use
-is to first check the precomputed hash code,
+Another adjustment we made to improve the \verb!equals()! method was to first compare precomputed hash codes,
 and skip checking for \verb!null! pointers and such.
 
 \subsection{First approach}
