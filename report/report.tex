@@ -309,11 +309,11 @@ At least we did not find it worthwhile to find and implement such an algorithm.
 \section{Results}
 
 \subsection{First approach}
-Initially, a regular forward breadth-first-search with static deadlock detection (see Section~\ref{sec:dead}
+Initially, a regular forward breadth-first-search with static deadlock detection (see Section~\ref{sec:dead})
 was used and the agent solved 16 maps on the evaluation server.
 The agent used by the milestone deadline was further improved with the boxes on goal evaluation heuristic.
 The strong features of this implementation was the smart state definition
-discussed in Section~\ref{sec:statedef}, basic the deadlock detection and at least \emph{one} indication
+discussed in Section~\ref{sec:statedef}, the basic deadlock detection and at least \emph{one} indication
 for comparing states.
 This implementation solved 42 puzzles on the first test server and hardly any of the first 100 puzzles on the 
 second test server.
@@ -351,13 +351,24 @@ and about half of the first 100 puzzles in the difficult set from the second ser
 
 \section{Discussion}
 
+It is clear that the various implemented improvements to this solver have been successful.
+There is clear evidence of that in the result section.
+What is harder to conclude is how to weigh the different heuristic evaluation functions.
+We managed to find some weights that produced good results,
+but most probably these weights could be further improved.
+Also, the left out heuristic for distances between boxes and goals might still be a good idea,
+but we just did not figure out how to weigh it against the other heuristics.
+Possibly it might also need to measure the distance in a better way than the closest Manhattan distance.
+
 With limited time, and as a first approach to solving this problem,
-we feel the implementation is good enough.
+we feel that our final implementation is a good solution.
 Our aim was to keep the solver as simple as possible,
 while still solving a decent amount of the test puzzles.
+This is something we feel we have accomplished,
+seeing the good results produced.
+
 There are several improvements that we considered, but were
 deemed either too difficult or time consuming to implement.
-
 One example of such an improvement would be to introduce dynamic
 dead lock detection to some degree.
 Our implementation only discovers the simplest type of dead lock situations,
@@ -368,5 +379,8 @@ which would recognize tunnels, and prohibit the player
 from pushing a box part way through a tunnel and consider this a new state.
 The new state should instead be when the player has pushed the box to the end of a tunnel,
 because once a box is inside of a tunnel it can only exit from the two tunnel endpoints.
+There are more improvements similar to this, involving pattern recognition,
+identifying ''rooms'' and common Sokoban concepts such as ''doors'',
+and we leave all of these improvements for future research and development.
 
 \end{document}
