@@ -68,11 +68,11 @@ To push a box, the player has to stand next to the box,
 and the square onto which the box is pushed has to be empty.
 
 In other words, the problem for us to solve is implementing an agent that,
-given a Sokoban board, finds the sequence of moves for the player so that
+given a Sokoban puzzle, finds the sequence of moves for the player so that
 it solves the puzzle.
 The movements can be one of the directions \verb!up!, \verb!down!, \verb!left!, or \verb!right!.
 
-The boards are represented using a standard Sokoban format. See this link for details:
+The puzzles are represented using a standard Sokoban format. See this link for details:
 \url{http://sokobano.de/wiki/index.php?title=Level_format}.
 
 \section{Method}
@@ -94,7 +94,7 @@ we simply find the transitions between all of these states and concatenate these
 \subsection{State definition}
 \label{sec:statedef}
 
-So what do we mean by a state in Sokoban?
+What do we mean by a state in Sokoban?
 The naive definition of a state could include the whole puzzle,
 including the positions of the boxes, the player.
 Including walls and goal positions in the state would be wasteful,
@@ -136,7 +136,7 @@ That is, the top left corner is defined to be the origin, and a coordinate is de
 $(row, col)$.
 
 \subsubsection{Example}
-Take a look at the board below for example.
+Take a look at the situation below for example.
 
 \begin{verbatimtab}
  0123456
@@ -217,32 +217,35 @@ it more prioritized to move boxes close to the last box moved,
 and the last one is the percentage of boxes on a goal.
 We considered having a distance function that would get a ''better score''
 when boxes are moving closer to a goal, but this was not very efficient
-because it did not take into account the fact that the agent could push several boxes
+when applied to our implementation,
+possibly because it did not take into account the fact that the agent could push several boxes
 close to the same goal to get a good score.
 This may be due to any of the following reasons;
 	we computed the Manhattan distance between a box and a goal,
 	we ignored any walls in between the box and the goal,
 	and we computed the distance between a box and \emph{the closest} goal, which may not be correct.
-
+Eventually we found that the evaluation heuristic was good enough without the distance measurements.
 
 \subsection{Changing heuristic weights}
 We have continuously monitored our agent with a CPU and memory sampler.
-By doing that we could see that the memory filled up after certain amount of time. 
-Then the agent is using the CPU until the memory is filled up and after that the garbage collector tries to free 
-memory but is unable to do so because almost every object is referenced by the agent. 
+By doing this we could see that the memory was filled up by the agent after a certain amount of time. 
+This is problematic because once the memory is considered to be full,
+the garbage collector takes over and tries to free
+memory but is unable to do so because almost every object is referenced to by the agent. 
 This results in a situation where both the agent and the garbage 
 collector are unable to do any valuable work so it does not come closer to the solution. 
 
-This is of course a bad usage of the time frame. 
 To solve this problem the agent tries to find a solution using reasonable weights on the heuristic functions.
 If it fails within a time limit it starts over with the continuity value weighted more because this could help 
-find a solution for puzzles where there are a lot of tunnels. 
-If this also fails within a time limit the agent will start to randomize 
-the weights and try a lot of different weights for short periods of time. 
+find a solution for puzzles where there are many tunnels or the solutions requires each box to be moved to
+a somewhat final position before moving the rest of the boxes.
+If this also fails within a certain time limit, the agent will start to randomize 
+the weights and try several different weights for short periods of time.
 
-The problem with this solution is that all previous work becomes useless since the agent starts over again. 
-But because of the memory problem it would not have done any useful work anyway so 
-it is best to start over again and hope that the new approach is better. 
+The problem with this solution is that all previous work becomes useless since the agent starts over again.
+But because of the memory problem it would most likely not have done any useful work anyway so
+it is a good idea to let it start over again with different priorities
+and hope that the new approach is better.
 
 \subsection{Eliminating dead states}
 
@@ -294,12 +297,16 @@ allows us to prune lots of dead states with little effort.
 \end{verbatimtab}
 
 The other dead states are not as static as the ones discussed above. 
-It can for example be when four boxes are pushed together in a two times two square when they are not on a goal.
+It can for example be when four boxes are pushed together in a two times two square formation
+(that are not goal positions).
 In the backwards solver this particular kind of dead state is not really a problem since it is
 impossible to pull four boxes to such a square.
-In the forward solver this problem is tackled by using the mobility value discussed in section~\ref{sec:prio}. 
+In the forward solver this problem is tackled by using the mobility value discussed in section~\ref{sec:prio}.
 
-There are even more dead states that are harder to detect but those are not considered simply because it is not very simple.
+There are even more dead states that are harder to detect but we decided not
+to implement any detection algorithms for such, because most probably the
+workload of finding those would just overburden the actual search.
+At least we did not find it worthwhile to find and implement such an algorithm.
 
 \section{Results}
 
@@ -339,9 +346,9 @@ test server with port 5031.
 In the final agent all optimization discussed previously are present,
 and we added one more optimization to the coordinates implementation.
 We noticed that a substantial amount of time was spent calculating
-a coordinate's neighbours, which is very unneccessary since
+a coordinate's neighbours, which is very unnecessary since
 we are using the multiton pattern.
-We precomputed this function, which reduced execution time even further. 
+We precomputed this function, which reduced execution time even further.
 
 This final submission solves about 94 puzzles on the test server port 5032,
 and about half of the first 100 puzzles in the difficult set on port 5031.
@@ -356,9 +363,13 @@ There are several improvements that we considered, but were
 deemed either too difficult or time consuming to implement.
 One example of such an improvement would be to introduce dynamic
 dead lock detection to some degree.
-Another is to implement so called ''tunnel macros'',
+Our implementation only discovers the simplest type of dead lock situations,
+not the ones where there is more than one box is involved.
+
+Another improvement could be to implement so called ''tunnel macros'',
 which would recognize tunnels, and prohibit the player
-from pushing a box part way through a tunnel and consider this as a new state.
-The new state should instead be when the player has pushed the box to the end of a tunnel.
+from pushing a box part way through a tunnel and consider this a new state.
+The new state should instead be when the player has pushed the box to the end of a tunnel,
+because once a box is inside of a tunnel it can only exit from the two tunnel endpoints.
 
 \end{document}
