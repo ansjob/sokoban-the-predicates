@@ -5,8 +5,8 @@ import java.util.Set;
 
 public class SokobanState implements Comparable<SokobanState> {
 
-	public static final int REACHED_GOALS_WEIGHT = 30;
-	public static final int MOBILITY_WEIGHT = 20;
+	public static int REACHED_GOALS_WEIGHT = 30;
+	public static int MOBILITY_WEIGHT = 20;
 	public static int CONTINUITY_WEIGHT = 0;
 	public final Set<Coordinate> boxLocations;
 	public final Set<Coordinate> reachableBoxNeighbours;

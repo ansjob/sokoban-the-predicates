@@ -173,11 +173,21 @@ a solution has been found, and the paths are ''stitched together'' to form the a
 \subsubsection{Prioritizing states}
 \label{sec:prio}
 
-We decided to use a best-first-search approach for both directions of the search,
-and so we had to come up with a way to prioritize states.
-We implemented two functions that both return an integer value in the range
+Since the state-space grows rapidly, there is a need to
+prioritize the order in which the states are explored.
+We decided to use a best-first-search approach for both directions of the search.
+Given a good evaluation function, best-first-search is a reasonable
+approach, since it will explore states close to the solution first.
+This is to prefer compared to for example an $A*$ algorithm,
+because we are not concerned with how deep in the
+search tree we have explored, we only need to find 
+\emph{a} solution as quick as possible.
+
+We implemented three evaluation functions that given a state return an integer value in the range
 $[0, 99]$, where higher is better.
-One function is a mobility value, and the other is the percentage of boxes on a goal.
+One function is a mobility value, one is a value designed to make
+it more prioritized to move boxes close to the last box moved,
+and the last one is the percentage of boxes on a goal.
 We considered having a distance function that would get a ''better score''
 when boxes are moving closer to a goal, but this was not very efficient
 because it did not take into account the fact that the agent could push several boxes
