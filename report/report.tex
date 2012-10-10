@@ -89,6 +89,7 @@ When we find a path between the starting state and the solved state (where each 
 we simply find the transitions between all of these states and concatenate these to get a complete solution.
 
 \subsection{State definition}
+\ref{sec:statedef}
 
 So what do we mean by a state in Sokoban?
 The naive definition of a state could include the whole puzzle,
@@ -123,8 +124,6 @@ The reachable box neighbours are marked with an \verb!R!.
 		Three different situations that yield two different Sokoban states.
 	}
 \end{figure}
-
-\begin{tabular}
 
 Furthermore, by using sets of coordinates rather than matrices with the boxes in,
 we save some space, since the number of boxes will always be less than the number of squares in any
@@ -237,6 +236,7 @@ problem it would not have done any useful work anyway so it is best to start ove
 
 \subsection{Eliminating dead states}
 
+\label{sec:dead}
 
 We implemented the simplest type of dead state detection we could think of,
 namely to avoid pushing boxes into static dead positions in the puzzle.
@@ -295,6 +295,7 @@ There are even more dead states that are harder to detect but those are not cons
 
 
 \subsection{Performance Optimizations}
+\label{sec:opt}
 In addition to the algorithm optimizations, such as the state definition and bidirectional search,
 we have made some implementation specific optimizations.
 In order to squeeze some better performance we implemented
@@ -303,7 +304,29 @@ This means there will not be several object instances for the same coordinate,
 but only references to the same one.
 This saves lots of memory, since many states will have references to the same coordinates.
 
-%Om sampling, hashCode, equals
+When sampling the agent with VisualVm we noticed that a lot of time was spent in the Sokoban states \verb!equals()! and \verb!hashCode()! methods. 
+Typical values were 40\% of the time in each method which would mean that only 20\% of the time was used to other methods that actually brings
+the agent closer to the solution.
+That is no surprise since all states are stored in hash tables. By only calculating the hash value once and then store that value
+we were able to reduce the time spent in \verb!hashCode()! to around 20\% of the total time. \verb!equals()! was improved as well
+down to using around 10\% of the total time. This means that 70\% of the time is used for other purposes.
+
+
+\subsection{First approach}
+Our first approach, by the milestone deadline, did not use almost any of the optimizations discussed in the method description and in section~\ref{sec:opt}.
+By then the only heuristics value was the goal on boxes value and only all maps were solved by the forward solver. 
+The static deadlock detection discussed in section~\ref{sec:dead} was the only one.
+The strong features of this implementation was the smart state definition discussed in~\ref{sec:statedef} and the deadlock detection. 
+
+By then the agent solved 38 maps on the evaluation server, 42 maps on the test server with port 5032 and none of the first 100 maps on the 
+test server with port 5031. 
+
+Even before that, when regular breath-first-search was used, the agent solved 16 maps on the evaluation server. 
+Without the deadlock detection the agent were not able to solve any of the maps on the test server with port 5032.
+
+\subsection{Final approach}
+
+In the final agent all optimization discussed previously are present. 
 
 \section{Discussion}
 
