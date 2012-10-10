@@ -122,10 +122,10 @@ The reachable box neighbours are marked with an \verb!R!.
 			############ ############ ############
 \end{verbatimtab}
 \end{center}
-	\label{example:states}
 	\caption{
 		Three different situations that yield two different states.
 	}
+	\label{example:states}
 \end{figure}
 
 Furthermore, by using sets of coordinates rather than matrices with the boxes in,
@@ -317,6 +317,7 @@ discussed in Section~\ref{sec:statedef}, the basic deadlock detection and at lea
 for comparing states.
 This implementation solved 42 puzzles on the first test server and hardly any of the first 100 puzzles on the 
 second test server.
+Most of the solved puzzles were solved in a few seconds (typically less than 10).
 
 \subsection{Performance Optimizations}
 \label{sec:opt}
@@ -347,7 +348,9 @@ By precomputing this function, we reduced execution time even further.
 \subsection{Final approach}
 In the final agent all optimization mentioned above were used,
 and this final submission solves about 94 puzzles on the first test server,
-and about half of the first 100 puzzles in the difficult set from the second server.
+and 58 of the first 100 puzzles in the difficult set from the second server.
+Out of the 94 solutions, 89 were completed in less than 10 seconds,
+87 in less than 3 seconds, and 77 in less than 1 second.
 
 \section{Discussion}
 
