@@ -96,7 +96,7 @@ we simply find the transitions between all of these states and concatenate these
 
 So what do we mean by a state in Sokoban?
 The naive definition of a state could include the whole puzzle,
-including the positions of the boxes, the player.
+including the positions of the boxes and the player.
 Including walls and goal positions in the state would be wasteful,
 as they can never be moved throughout the game.
 
@@ -205,7 +205,7 @@ prioritize the order in which the states are explored.
 We decided to use a best-first-search approach for both directions of the search.
 Given a good evaluation function, best-first-search is a reasonable
 approach, since it will explore states close to the solution first.
-This is to prefer compared to for example an $A*$ algorithm,
+This is to prefer compared to for example an $A^*$ algorithm,
 because we are not concerned with how deep in the
 search tree we have explored, we only need to find 
 \emph{a} solution as quick as possible.
@@ -255,7 +255,6 @@ we could not move a box in that position into any of the goals.
 
 The algorithm for this is simple, and runs one time before the search starts.
 
-\clearpage
 \begin{algorithm}
 \caption{Marking Sokoban board positions as static dead or alive}
 \label{alg:dead_positions}
@@ -314,7 +313,7 @@ This means there will not be several object instances for the same coordinate,
 but only references to the same one.
 This saves lots of memory, since many states will have references to the same coordinates.
 
-When sampling the agent with VisualVm we noticed that a lot of time was spent in the Sokoban states \verb!equals()! and \verb!hashCode()! methods. 
+When sampling the agent we noticed that a lot of time was spent in the Sokoban states \verb!equals()! and \verb!hashCode()! methods. 
 Most of the time was used for these methods, which meant not much time was spent with
 other methods that actually brings the agent closer to a solution.
 That is no surprise since all states are stored in hash tables. By only calculating the hash value once and then store that value
@@ -324,7 +323,7 @@ is to first check the precomputed hash code,
 and skip checking for \verb!null! pointers and such.
 
 \subsection{First approach}
-Initially, a regular breath-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
+Initially, a regular breadth-first-search with static deadlock detection was used and the agent solved 16 maps on the evaluation server. 
 
 The agent used by the milestone deadline, hardly used any of the optimizations discussed in the method description and in Section~\ref{sec:opt}.
 By then the only heuristics value was a boxes on goals value, using only the forward solver. 
