@@ -137,7 +137,9 @@
 \begin{frame}
 	\frametitle{Building the solution}
 	\begin{itemize}
-		\item{}
+		\item{Once solved, we have two state sequences $Seq_1$ and $Seq_2$ which together form a solution}
+		\item{Generate the player movements for each of these sequences}
+		\item{Concatenate these for the complete solution}
 	\end{itemize}
 \end{frame}
 
@@ -146,21 +148,34 @@
 
 \begin{frame}
 	\frametitle{CPU Optimizations}
+	\begin{itemize}
+		\item{Wasting precious CPU cycles}
+		\item{Precomputation is key!}
+		\item{Precompute things that are constant throughout execution
+			\begin{itemize}
+				\item{Hashcode for immutables}
+				\item{Neighbours to coordinates}
+			\end{itemize}
+		}
+	\end{itemize}
 \end{frame}
 
 \subsection{Memory Optimizations}
 
 \begin{frame}
 	\frametitle{Saving Memory}
-\end{frame}
-\begin{frame}
-	\frametitle{Multiton pattern}
+	\begin{itemize}
+		\item{Avoid multiple instances of the same logical objects}
+		\item{Do not store every reachable position in the state}
+		\item{Remember only the positions that are relevant}
+	\end{itemize}
 \end{frame}
 
 \section{Results and Conclusions}
 
 \begin{frame}
 	\frametitle{Running times}
+	\includegraphics[width=\textwidth]{time_graph}
 \end{frame}
 
 \begin{frame}
