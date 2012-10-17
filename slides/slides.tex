@@ -1,20 +1,18 @@
 
 \documentclass[]{beamer}
 
-% Theme for beamer presentation.
 \usepackage{beamerthemesplit} 
 \usepackage[utf8]{inputenc}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
 
-\title{Sokoban Project Presentation}    % Enter your title between curly braces
-\author{Andreas Sjöberg \and Andreas Gabrielsson \and Marcus Larsson}                 % Enter your name between curly braces
-\institute{The Predicates \\ KTH}      % Enter your institute name between curly braces
-\date{\today}                    % Enter the date or \today between curly braces
+\title{Sokoban Project Presentation}
+\author{Andreas Sjöberg \and Andreas Gabrielsson \and Marcus Larsson}
+\institute{The Predicates \\ KTH}
+\date{\today}
 
 \begin{document}
 
-% Creates title page of slide show using above information
 \begin{frame}
   \titlepage
 \end{frame}
@@ -137,7 +135,7 @@
 \begin{frame}
 	\frametitle{Building the solution}
 	\begin{itemize}
-		\item{Once solved, we have two state sequences $Seq_1$ and $Seq_2$ which together form a solution}
+		\item{Once solved, we have two state sequences which together form a solution}
 		\item{Generate the player movements for each of these sequences}
 		\item{Concatenate these for the complete solution}
 	\end{itemize}
@@ -173,16 +171,46 @@
 
 \section{Results and Conclusions}
 
-\begin{frame}
-	\frametitle{Running times}
-	\includegraphics[width=\textwidth]{time_graph}
-\end{frame}
 
+\subsection{Performance}
 \begin{frame}
 	\frametitle{Performance}
+	\begin{columns}
+		\column{0.3\textwidth}
+		\begin{itemize}
+			\item{Note: This is from our final evaluation.}
+			\item{Solved: 87\\ Failed: 13}
+		\end{itemize}
+	\column{0.7\textwidth}
+		\includegraphics[width=\textwidth]{time_graph}
+	\end{columns}
+\end{frame}
+
+\subsection{Conclusions}
+\begin{frame}
+	\frametitle{Conclusions}
+	\begin{itemize}
+		\item{Key features
+			\begin{itemize}
+				\item{Bidirectional search}
+				\item{Simple deadlock detection}
+			\end{itemize}
+		}
+		\item{Suggested improvements
+
+			\begin{itemize}
+				\item{More advanced deadlock detection}
+				\item{Tunnel macros}
+				\item{A systematic approach to the heuristics weights}
+				\item{Pattern recognition (rooms, doors, goal zones etc.)}
+			\end{itemize}
+		}
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Conclusions}
+	\begin{center}
+		EOF
+	\end{center}
 \end{frame}
 \end{document}
